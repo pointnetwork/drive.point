@@ -1,0 +1,10 @@
+{
+    "version": 0.1,
+    "target": "drive.point",
+    "keyvalue": {},
+    "contracts": [
+      "PointDrive"
+    ],
+    "upgradable": true,
+    "rootDir": "public"
+  }
