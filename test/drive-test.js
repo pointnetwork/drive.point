@@ -4,18 +4,58 @@ const { ethers, upgrades } = require("hardhat");
 describe("PointDrive", function () {
 
   let driveContract;
+  let identityContract;
 	let owner;
 	let addr1;
 	let addr2;
   let addr3;
 	let addrs;
+  let handle = 'drive';
 
   beforeEach(async function () {
 		[owner, addr1, addr2, addr3, ...addrs] = await ethers.getSigners();
 
-    const factory = await ethers.getContractFactory("PointDrive");
-    driveContract = await upgrades.deployProxy(factory, [], {kind: 'uups'});
+    const identityFactory = await ethers.getContractFactory("Identity");
+    identityContract = await upgrades.deployProxy(identityFactory, [], {kind: 'uups'});
+    await identityContract.deployed();
+
+    const driveFactory = await ethers.getContractFactory("PointDrive");
+    driveContract = await upgrades.deployProxy(driveFactory, [identityContract.address, handle], {kind: 'uups'});
     await driveContract.deployed();
+  });
+
+  describe("Testing deployment functions", function () {
+
+    it("Should upgrade the proxy by a deployer", async function () {
+      await identityContract.setDevMode(true);
+      await identityContract.register(
+        handle, 
+        owner.address, 
+        '0xed17268897bbcb67127ed550cee2068a15fdb6f69097eebeb6e2ace46305d1ce',
+        '0xe1e032c91d4c8fe6bab1f198871dbafb8842f073acff8ee9b822f748b180d7eb');
+      
+      await identityContract.addIdentityDeployer(handle, addr1.address);
+      const driveFactory = await ethers.getContractFactory("PointDrive");
+      let driveFactoryDeployer = driveFactory.connect(addr1);
+
+      await upgrades.upgradeProxy(driveContract.address, driveFactoryDeployer);
+    });
+
+    it("Should not upgrade the proxy by a non-deployer", async function () {
+      await identityContract.setDevMode(true);
+      await identityContract.register(
+        handle, 
+        owner.address, 
+        '0xed17268897bbcb67127ed550cee2068a15fdb6f69097eebeb6e2ace46305d1ce',
+        '0xe1e032c91d4c8fe6bab1f198871dbafb8842f073acff8ee9b822f748b180d7eb');
+      
+      const driveFactory = await ethers.getContractFactory("PointDrive");
+      let driveFactoryDeployer = driveFactory.connect(addr1);
+      await expect(
+        upgrades.upgradeProxy(driveContract.address, driveFactoryDeployer)
+      ).to.be.revertedWith('You are not a deployer of this identity');
+    });
+
   });
 
   describe("Testing owner functions", function () {
@@ -61,7 +101,7 @@ describe("PointDrive", function () {
         isPublic
       );
 
-      let element = await driveContract.getElementMetadata(fullPath);
+      let element = await driveContract.getElementMetadata(owner.address, fullPath);
       expect(element.eElementId).to.equal(id);
       expect(element.eName).to.equal(name);
       expect(element.eFullPath).to.equal(fullPath);
@@ -98,7 +138,7 @@ describe("PointDrive", function () {
         isPublic
       );
 
-      let elements = await driveContract.listElements(parent);
+      let elements = await driveContract.listElements(owner.address, parent);
       expect(elements.length).to.equal(2);
       expect(elements[0].eName).to.equal(name1);
       expect(elements[1].eName).to.equal(name2);

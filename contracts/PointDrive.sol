@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "./Identity.sol";
 
 
 contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
@@ -20,6 +21,8 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         bool isFolder;
         bool isPublic;
     }
+    address private _identityContractAddr;
+    string private _identityHandle;
 
     mapping(address => mapping(string => StorageElement)) private _ownerPathToElementMap;
     mapping(address => mapping(string => string[])) private _ownerPathToChildrensPathsMap;
@@ -36,12 +39,17 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         string eParentPath,
         bool isPublic);
 
-    function initialize() public initializer onlyProxy {
+    function initialize(address identityContractAddr, string calldata identityHandle) public initializer onlyProxy {
         __Ownable_init();
         __UUPSUpgradeable_init();
+        _identityContractAddr = identityContractAddr;
+        _identityHandle = identityHandle;
     }
-
-    function _authorizeUpgrade(address) internal override onlyOwner {}
+    
+    function _authorizeUpgrade(address) internal view override {
+        require(Identity(_identityContractAddr).isIdentityDeployer(_identityHandle, msg.sender), 
+            "You are not a deployer of this identity");
+    }
 
     function newFile(string calldata eId, 
         string calldata eName, 
@@ -97,18 +105,18 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         emit FolderAdd(eName, eFullPath, eParentPath, isPublic);
     }
 
-    function listElements(string calldata eFullPath) public view returns (StorageElement[] memory){
-        string[] memory paths = _ownerPathToChildrensPathsMap[msg.sender][eFullPath];
+    function listElements(address owner, string calldata eFullPath) public view returns (StorageElement[] memory){
+        string[] memory paths = _ownerPathToChildrensPathsMap[owner][eFullPath];
         
         StorageElement[] memory elements = new StorageElement[](paths.length);
         for (uint256 i = 0; i < paths.length; i++) {
-            elements[i] = _ownerPathToElementMap[msg.sender][paths[i]];
+            elements[i] = _ownerPathToElementMap[owner][paths[i]];
         }
         return elements;
     }
 
-    function getElementMetadata(string calldata eFullPath) public view returns (StorageElement memory){
-        return _ownerPathToElementMap[msg.sender][eFullPath];
+    function getElementMetadata(address owner, string calldata eFullPath) public view returns (StorageElement memory){
+        return _ownerPathToElementMap[owner][eFullPath];
     }
 
 }
