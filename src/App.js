@@ -3,21 +3,17 @@ import { Route } from 'wouter'
 import Header from './components/Header';
 import Footer from "./components/Footer";
 import Home from './pages/Home'
-import Examples from './pages/Examples'
-import Contracts from './pages/Contracts'
+import { useAppContext} from './context/AppContext';
 
 const Main = () => {
+
+    const { walletAddress, identity } = useAppContext();
+    
     return (
         <main>
             <Header />
                 <Route path='/'>
-                    <Home/>
-                </Route>
-                <Route path='/examples'>
-                    <Examples/>
-                </Route>
-                <Route path='/contracts'>
-                    <Contracts/>
+                    <Home walletAddress={walletAddress} identity={identity}/>
                 </Route>
             <Footer />
         </main>

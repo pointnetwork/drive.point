@@ -1,0 +1,29 @@
+
+.file {
+    padding: 5px;
+    margin: 5px;
+    width: 100px;
+    text-align: center;
+    float: left;
+    cursor: pointer;
+}
+
+.file:hover {
+    padding: 5px;
+    margin: 5px;
+    width: 100px;
+    text-align: "center";
+    float: "left";
+    cursor: "pointer";
+    background-color: lightgray;
+}
+
+.fileSelected {
+    padding: 5px;
+    margin: 5px;
+    width: 100px;
+    text-align: "center";
+    float: "left";
+    cursor: "pointer";
+    background-color: lightgray;
+}

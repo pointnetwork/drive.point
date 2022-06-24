@@ -6,8 +6,10 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "./Identity.sol";
 
+interface IIdentity {
+    function isIdentityDeployer(string memory, address) external returns (bool);
+}
 
 contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
 
@@ -46,8 +48,8 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         _identityHandle = identityHandle;
     }
     
-    function _authorizeUpgrade(address) internal view override {
-        require(Identity(_identityContractAddr).isIdentityDeployer(_identityHandle, msg.sender), 
+    function _authorizeUpgrade(address) internal override {
+        require(IIdentity(_identityContractAddr).isIdentityDeployer(_identityHandle, msg.sender), 
             "You are not a deployer of this identity");
     }
 
@@ -92,13 +94,13 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         _ownerPathToChildrensPathsMap[msg.sender][eParentPath].push(eFullPath);
 
         _ownerPathToElementMap[msg.sender][eFullPath] = StorageElement(
-            "", 
+            eFullPath, 
             eName, 
             eFullPath, 
             msg.sender,
             block.timestamp,
             0,
-            false,
+            true,
             isPublic
         );
 
