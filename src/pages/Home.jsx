@@ -7,16 +7,23 @@ import Breadcrumb from '../components/Breadcrumb';
 import ItemList from '../components/ItemList';
 import Swal from 'sweetalert2';
  
-export default function Home({walletAddress, identity}) {
+export default function Home({walletAddress, identityProp, pathProp}) {
   
   const [contextMenuState, setContextMenuState] = useState({open: false, x: 0, y: 0});
   const [items, setItems] = useState([]);
   const [itemSelected, setItemSelected] = useState('');
   const [path, setPath] = useState('');
   const [addr, setAddr] = useState(walletAddress);
+  const [identity, setIdentity] = useState(identityProp);
+  console.log('+++++++++++++++++');
+  console.log(identityProp);
+  console.log(identity);
+  console.log('+++++++++++++++++');
 
   function openContextMenu(x, y){
+    /*
     setContextMenuState({open: true, x, y});
+    */
   }
 
   function closeContextMenu(e){
@@ -32,6 +39,22 @@ export default function Home({walletAddress, identity}) {
     setItemSelected('');
   }
 
+  async function folderExists(addrParam, pathParam){
+    if(pathParam !== ''){
+      const response = await window.point.contract.call({
+        contract: 'PointDrive', 
+        method: 'getElementMetadata', 
+        params: [ addrParam, pathParam]});
+      if(response.data[0] === ''){
+        return false;
+      }else{
+        return true;
+      }
+    }else{
+      return true;
+    }
+  }
+
   useEffect(() => {
     setAddr(walletAddress);
   }, [walletAddress]);
@@ -40,6 +63,43 @@ export default function Home({walletAddress, identity}) {
       fetchItems(addr, path);
   }, [path, addr])
 
+  useEffect( async () => {
+    try{
+      if(pathProp === '' || pathProp === undefined){
+        setAddr(walletAddress);
+        setPath('');
+        return;
+      }
+
+      const identityParam = pathProp.split('/')[0];
+      const result = await window.point.identity.identityToOwner({
+        identity: identityParam,
+      });
+      let pathParam = '';
+      if(pathProp.search('/') > 0){
+        pathParam = pathProp.slice(pathProp.search('/') + 1);
+      }
+
+      const exists = await folderExists(result.data.owner, pathParam);
+      if(!exists){
+        Swal.fire({
+          title: `This folder does not exists.`,
+          icon: 'error'
+        })
+        return;
+      }
+
+      setIdentity(identityParam);
+      setAddr(result.data.owner);
+      setPath(pathParam);
+    }catch(e){
+      console.log(e);
+      Swal.fire({
+        title: `Fail to fetch the path!`,
+        icon: 'error'
+      })
+    }
+  }, [pathProp]);
 
   const fetchItems = async (addrP, pathP) => {
     
@@ -73,11 +133,111 @@ export default function Home({walletAddress, identity}) {
     }
   }
 
-  function openNewFolderDialog(){
+  
+
+  async function openUploadDialog(){
+    if(identity !== identityProp){
+      Swal.fire({
+        title: `You cannot upload a file to a folder that is not yours.`,
+        icon: 'error'
+      })
+      return;
+    }
+
+    const exists = await folderExists(addr, path);
+    if(!exists){
+      Swal.fire({
+        title: `This folder does not exists. Create it to upload files.`,
+        icon: 'error'
+      })
+      return;
+    }
+    
+    
+    Swal.fire({
+      title: 'Upload File',
+      input: 'file',
+      inputAttributes: {
+        autocapitalize: 'off'
+      },
+      showClass: {
+          popup: 'animate__animated animate__fadeInDown'
+      },
+      hideClass: {
+          popup: 'animate__animated animate__fadeOutUp'
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Upload',
+      showLoaderOnConfirm: true,
+      preConfirm: async (fileToUpload) => {
+        try{
+          console.log(fileToUpload);
+          if (fileToUpload && fileToUpload.size > 100 * 1024 * 1024){
+            alert('Point Drive for now only supports files until 100 MB.')  
+          }
+          if(fileToUpload){
+            const formData = new FormData()
+            formData.append("postfile", fileToUpload);
+            const res = await window.point.storage.postFile(formData);
+            const fileId = res.data;
+            console.log('FileId created: ' + fileId);
+            if(fileId){
+              const response = await window.point.contract.call({
+                contract: 'PointDrive', 
+                method: 'newFile', 
+                params: [ fileId, 
+                          fileToUpload.name,
+                          path + (path !== '' ? '/' : '') + fileToUpload.name, 
+                          path, 
+                          fileToUpload.size,
+                          true]});
+              
+              console.log('$$$$$$$$$');
+              console.log(response);
+              console.log('$$$$$$$$$')
+              if(response){
+                return response;
+              }
+
+            }
+          }
+        } catch(e){
+          Swal.showValidationMessage(e.message);
+        }
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((response) => {
+      console.log('ffffffffff');
+      console.log(response);
+      console.log('ffffffffff');
+      if (response.isConfirmed) {
+        Swal.fire({
+          title: `File Uploaded with Success!`,
+        }).then(() => {
+          fetchItems(addr, path);
+        })
+      }
+    })
   }
 
-  function openNewFolderDialog(){
+  async function openNewFolderDialog(){
+    if(identity !== identityProp){
       Swal.fire({
+        title: `You cannot create a folder inside a folder that is not yours.`,
+        icon: 'error'
+      })
+      return;
+    }
+    const exists = await folderExists(addr, path);
+    if(!exists){
+      Swal.fire({
+        title: `This folder does not exists. Create it to create inner folders.`,
+        icon: 'error'
+      })
+      return;
+    }
+
+    Swal.fire({
         title: 'New folder name',
         input: 'text',
         inputAttributes: {
@@ -121,7 +281,7 @@ export default function Home({walletAddress, identity}) {
           })
         }
       })
-    }
+    } 
 
 
 
@@ -130,10 +290,10 @@ export default function Home({walletAddress, identity}) {
       <Container className="p-3" onClick={closeContextMenu}>
       <div className="row" style={{paddingBottom: 30}}>
         <div className="col-2" style={{borderRight: '1px solid gray', paddingRight: 20, minHeight: 400}}>
-          <Sidebar setPath={setPath} />
+          <Sidebar setAddr={setAddr} walletAddress={walletAddress} setIdentity={setIdentity} identityProp={identityProp} setPath={setPath} />
         </div>
         <div className="col-10" style={{paddingLeft: 20}}>
-          <Toolbar newFolderHandler={openNewFolderDialog} />
+          <Toolbar uploadHandler={openUploadDialog} newFolderHandler={openNewFolderDialog} />
           <br/>
           <Breadcrumb identity={identity} path={path} setPath={setPath} />
           <ItemList items={items} itemSelected={itemSelected} 
@@ -153,11 +313,6 @@ export default function Home({walletAddress, identity}) {
               <li><a className="dropdown-item" href="#">Details</a></li>
           </ul>
       </div>
-      
-      
-
-
-
       </Container>
     </>
   );

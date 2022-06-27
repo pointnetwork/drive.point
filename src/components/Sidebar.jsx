@@ -1,8 +1,10 @@
 
 
-const Sidebar = ({setPath}) => {
+const Sidebar = ({setAddr, setPath, setIdentity, walletAddress, identityProp}) => {
     function myFiles(){
       setPath('');
+      setAddr(walletAddress);
+      setIdentity(identityProp);
     }
     return (
           <div className="btn-group-vertical" >

@@ -6,8 +6,10 @@ export default function Item({id, name, type, path, openContextMenu, selected, s
     function openItem(e){
         console.log('opened');
         console.log(e.target);
-        if(type == 'folder'){
+        if(type === 'folder'){
             setPath(path);
+        } else if (type === 'file'){
+            window.open(`/_storage/${id}`, target='_blank');
         }
     }
 
@@ -21,7 +23,7 @@ export default function Item({id, name, type, path, openContextMenu, selected, s
         
         <div className={ selected ?  "itemSelected" : "item"} 
             onDoubleClick={openItem} 
-            onContextMenu={openContextMenuHandler}
+            /*onContextMenu={openContextMenuHandler}*/
             >
             <div align="center">
             {type === 'folder' ? 

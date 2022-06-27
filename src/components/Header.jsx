@@ -3,9 +3,31 @@ import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 import { Link } from "wouter";
 import { useAppContext} from '../context/AppContext';
+import { useState } from 'react';
 
-const Header = () => {
+const Header = ({changePathHandler}) => {
     const { walletAddress, identity } = useAppContext();
+
+    const [path, setPath] = useState('');
+
+    function changeHandler(e){
+        console.log(e);
+        setPath(e.target.value);
+    }
+
+    function clickHandler(e){
+        changePathHandler(path);
+    }
+
+    function enterHandler(e){
+        if (e.key === 'Enter') {
+            clickHandler(e);
+        }
+    }
+
+    function handleSubmit(e){
+        e.preventDefault();
+    }
 
     return (
         <>
@@ -17,9 +39,9 @@ const Header = () => {
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="me-auto">
-                    <form className="d-flex">
-                        <input className="form-control me-2" type="search" placeholder="Identity/path" aria-label="Search"/>
-                        <button className="btn btn-outline-success" type="submit">Open</button>
+                    <form className="d-flex" onSubmit={handleSubmit} >
+                        <input className="form-control me-2" type="search" placeholder="Identity/path" aria-label="Search" onChange={changeHandler} value={path} onKeyDown={enterHandler}/>
+                        <button className="btn btn-outline-success" type="button" onClick={clickHandler}>Open</button>
                     </form>
                     </Nav>
                     <Nav>
