@@ -3,21 +3,28 @@ import { Route } from 'wouter'
 import Header from './components/Header';
 import Footer from "./components/Footer";
 import Home from './pages/Home'
-import Examples from './pages/Examples'
-import Contracts from './pages/Contracts'
+import { useAppContext} from './context/AppContext';
+import { useState } from 'react';
 
 const Main = () => {
+
+    const { walletAddress, identity } = useAppContext();
+    const [path, setPath] = useState('');
+
+    function changePathHandler(path){
+        console.log('chaged path in main');
+        console.log(path);
+        setPath(path);
+    }
+    
     return (
         <main>
-            <Header />
+            <Header changePathHandler={changePathHandler} />
                 <Route path='/'>
-                    <Home/>
-                </Route>
-                <Route path='/examples'>
-                    <Examples/>
-                </Route>
-                <Route path='/contracts'>
-                    <Contracts/>
+                    {   identity !== undefined && identity !== '' && 
+                        walletAddress !== undefined && walletAddress !== '' ? 
+                    <Home walletAddress={walletAddress} identityProp={identity} pathProp={path}/>
+                    : <div className="spinner-border"></div> }
                 </Route>
             <Footer />
         </main>
