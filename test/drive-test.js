@@ -110,13 +110,91 @@ describe("PointDrive", function () {
       expect(element.isPublic).to.equal(isPublic);
     });
 
-    it("Should list elements", async function () {
+    it("Should denny access to get private file metadata from other users", async function () {
+      const id = "hashId";
+      const name = "test.txt";
+      const fullPath = "/home/diogo/test.txt";
+      const parent = "/home/diogo";
+      const size = 200;
+      const isPublic = false;
+
+      await driveContract.connect(addr1).newFile(
+        id,
+        name,
+        fullPath,
+        parent,
+        size,
+        isPublic
+      );
+      await expect(
+        driveContract.getElementMetadata(addr1.address, fullPath)
+      ).to.be.revertedWith('Access denied');
+    });
+
+    it("Should grant access to get public file metadata from other users", async function () {
+      const id = "hashId";
+      const name = "test.txt";
+      const fullPath = "/home/diogo/test.txt";
+      const parent = "/home/diogo";
+      const size = 200;
+      const isPublic = true;
+
+      await driveContract.connect(addr1).newFile(
+        id,
+        name,
+        fullPath,
+        parent,
+        size,
+        isPublic
+      );
+      await expect(
+        driveContract.getElementMetadata(addr1.address, fullPath)
+      ).not.to.be.revertedWith('Access denied');
+    });
+
+    it("Should list public elements", async function () {
       const id = "hashId";
       const name1 = "test1.txt";
       const name2 = "test2.txt";
-      const fullPath1 = "/home/diogo/test1.txt";
-      const fullPath2 = "/home/diogo/test2.txt";
-      const parent = "/home/diogo";
+      const fullPath1 = "test1.txt";
+      const fullPath2 = "test2.txt";
+      const parent = "";
+      const size = 200;
+      const isPublic = true;
+
+      await driveContract.newFile(
+        id,
+        name1,
+        fullPath1,
+        parent,
+        size,
+        isPublic
+      );
+      
+      await driveContract.newFile(
+        id,
+        name2,
+        fullPath2,
+        parent,
+        size,
+        isPublic
+      );
+
+      let elements = await driveContract.listElements(owner.address, parent);
+      expect(elements.length).to.equal(2);
+      expect(elements[0].eName).to.equal(name1);
+      expect(elements[1].eName).to.equal(name2);
+      expect(elements[0].eFullPath).to.equal(fullPath1);
+      expect(elements[1].eFullPath).to.equal(fullPath2);
+    });
+
+    it("Should list my private elements", async function () {
+      const id = "hashId";
+      const name1 = "test1.txt";
+      const name2 = "test2.txt";
+      const fullPath1 = "test1.txt";
+      const fullPath2 = "test2.txt";
+      const parent = "";
       const size = 200;
       const isPublic = false;
 
@@ -144,6 +222,47 @@ describe("PointDrive", function () {
       expect(elements[1].eName).to.equal(name2);
       expect(elements[0].eFullPath).to.equal(fullPath1);
       expect(elements[1].eFullPath).to.equal(fullPath2);
+    });
+
+    it("Should not list private elements of other users", async function () {
+      const id1 = "hashId1";
+      const id2 = "hashId1";
+      const name1 = "test1.txt";
+      const name2 = "test2.txt";
+      const fullPath1 = "home/test1.txt";
+      const fullPath2 = "home/test2.txt";
+      const parent = "home";
+      const size = 200;
+
+      await driveContract.connect(addr1).newFolder(
+        "home",
+        "home",
+        "",
+        true
+      )
+
+      await driveContract.connect(addr1).newFile(
+        id1,
+        name1,
+        fullPath1,
+        parent,
+        size,
+        true
+      );
+      
+      await driveContract.connect(addr1).newFile(
+        id2,
+        name2,
+        fullPath2,
+        parent,
+        size,
+        false
+      );
+
+      let elements = await driveContract.listElements(addr1.address, parent);
+      expect(elements.length).to.equal(1);
+      expect(elements[0].eName).to.equal(name1);
+      expect(elements[0].eFullPath).to.equal(fullPath1);
     });
 
   });
