@@ -22,6 +22,7 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         uint256 sizeInBytes;
         bool isFolder;
         bool isPublic;
+        string eElementIdSymmetricObj;
     }
     address private _identityContractAddr;
     string private _identityHandle;
@@ -69,7 +70,8 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         string calldata eFullPath, 
         string calldata eParentPath,
         uint256 size, 
-        bool isPublic) public{
+        bool isPublic, 
+        string calldata eIdSO) public{
         
         //any other data integrity verification?
         //check if already exists?
@@ -87,16 +89,18 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
             block.timestamp,
             size,
             false,
-            isPublic
+            isPublic,
+            eIdSO
         );
 
         emit FileAdd(eId, eName, eFullPath, eParentPath, size, isPublic);
     }
 
-    function newFolder(string calldata eName, 
+    function newFolder(string calldata eName,
         string calldata eFullPath, 
         string calldata eParentPath,
-        bool isPublic) public{
+        bool isPublic,
+        string calldata eFullPathSO) public{
         //any other data integrity verification?
         //check if already exists?
         //allow overide? history?
@@ -112,7 +116,8 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
             block.timestamp,
             0,
             true,
-            isPublic
+            isPublic,
+            eFullPathSO
         );
 
         emit FolderAdd(eName, eFullPath, eParentPath, isPublic);

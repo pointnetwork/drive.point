@@ -9,6 +9,8 @@ export default function ItemList({items, openContextMenu, itemSelected, setItemS
                         <Item key={item.eElementId} type={item.isFolder ? 'folder' : 'file' } 
                             id={item.eElementId} name={item.eName} path={item.eFullPath}
                             selected={itemSelected === item.eElementId} 
+                            isPublic={item.isPublic}
+                            eElementIdSymmetricObj={item.eElementIdSymmetricObj}
                             openContextMenu={openContextMenu} 
                             setItemSelected={setItemSelected}
                             setPath={setPath}

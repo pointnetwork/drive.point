@@ -68,7 +68,8 @@ describe("PointDrive", function () {
           "/home/diogo/test.txt",
           "/home/diogo",
           200,
-          false
+          false,
+          ''
         )
       ).to.be.emit(driveContract, 'FileAdd');
     });
@@ -79,7 +80,8 @@ describe("PointDrive", function () {
           "diogo",
           "/home/diogo",
           "/home",
-          false
+          false,
+          ''
         )
       ).to.be.emit(driveContract, 'FolderAdd');
     });
@@ -98,7 +100,8 @@ describe("PointDrive", function () {
         fullPath,
         parent,
         size,
-        isPublic
+        isPublic,
+        ''
       );
 
       let element = await driveContract.getElementMetadata(owner.address, fullPath);
@@ -124,7 +127,8 @@ describe("PointDrive", function () {
         fullPath,
         parent,
         size,
-        isPublic
+        isPublic,
+        ''
       );
       await expect(
         driveContract.getElementMetadata(addr1.address, fullPath)
@@ -145,7 +149,8 @@ describe("PointDrive", function () {
         fullPath,
         parent,
         size,
-        isPublic
+        isPublic,
+        ''
       );
       await expect(
         driveContract.getElementMetadata(addr1.address, fullPath)
@@ -168,7 +173,8 @@ describe("PointDrive", function () {
         fullPath1,
         parent,
         size,
-        isPublic
+        isPublic,
+        ''
       );
       
       await driveContract.newFile(
@@ -177,7 +183,8 @@ describe("PointDrive", function () {
         fullPath2,
         parent,
         size,
-        isPublic
+        isPublic,
+        ''
       );
 
       let elements = await driveContract.listElements(owner.address, parent);
@@ -204,7 +211,8 @@ describe("PointDrive", function () {
         fullPath1,
         parent,
         size,
-        isPublic
+        isPublic,
+        ''
       );
       
       await driveContract.newFile(
@@ -213,7 +221,8 @@ describe("PointDrive", function () {
         fullPath2,
         parent,
         size,
-        isPublic
+        isPublic,
+        ''
       );
 
       let elements = await driveContract.listElements(owner.address, parent);
@@ -238,7 +247,8 @@ describe("PointDrive", function () {
         "home",
         "home",
         "",
-        true
+        true,
+        ''
       )
 
       await driveContract.connect(addr1).newFile(
@@ -247,7 +257,8 @@ describe("PointDrive", function () {
         fullPath1,
         parent,
         size,
-        true
+        true,
+        ''
       );
       
       await driveContract.connect(addr1).newFile(
@@ -256,13 +267,24 @@ describe("PointDrive", function () {
         fullPath2,
         parent,
         size,
-        false
+        false,
+        ''
       );
 
+      await driveContract.connect(addr1).newFolder(
+        "diogo",
+        "home/diogo",
+        "home",
+        true,
+        ''
+      )
+
       let elements = await driveContract.listElements(addr1.address, parent);
-      expect(elements.length).to.equal(1);
+      expect(elements.length).to.equal(2);
       expect(elements[0].eName).to.equal(name1);
       expect(elements[0].eFullPath).to.equal(fullPath1);
+      expect(elements[1].eName).to.equal("diogo");
+      expect(elements[1].eFullPath).to.equal("home/diogo");
     });
 
   });

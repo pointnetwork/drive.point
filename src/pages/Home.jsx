@@ -7,7 +7,7 @@ import Breadcrumb from '../components/Breadcrumb';
 import ItemList from '../components/ItemList';
 import Swal from 'sweetalert2';
  
-export default function Home({walletAddress, identityProp, pathProp}) {
+export default function Home({publicKey, walletAddress, identityProp, pathProp}) {
   
   const [contextMenuState, setContextMenuState] = useState({open: false, x: 0, y: 0});
   const [items, setItems] = useState([]);
@@ -15,6 +15,8 @@ export default function Home({walletAddress, identityProp, pathProp}) {
   const [path, setPath] = useState('');
   const [addr, setAddr] = useState(walletAddress);
   const [identity, setIdentity] = useState(identityProp);
+  const [folderMetadata, setFolderMetadata] = useState({});
+  console.log('pk = ' + publicKey);
   console.log('+++++++++++++++++');
   console.log(identityProp);
   console.log(identity);
@@ -55,12 +57,74 @@ export default function Home({walletAddress, identityProp, pathProp}) {
     }
   }
 
+  async function fetchFolderMetadata(addrParam, pathParam){
+    if(pathParam !== ''){
+      const response = await window.point.contract.call({
+        contract: 'PointDrive', 
+        method: 'getElementMetadata', 
+        params: [ addrParam, pathParam]});
+
+      if(response.data[0] !== ''){
+        const d = response.data;
+        setFolderMetadata({
+          eElementId: d[0],
+          eName: d[1],
+          eFullPath: d[2],
+          owner: d[3],
+          createdAt: d[4],
+          sizeInBytes: d[5],
+          isFolder: d[6],
+          isPublic: d[7]
+        });
+        console.log('|||||||||1');
+        console.log({
+          eElementId: d[0],
+          eName: d[1],
+          eFullPath: d[2],
+          owner: d[3],
+          createdAt: d[4],
+          sizeInBytes: d[5],
+          isFolder: d[6],
+          isPublic: d[7]
+        });
+        console.log('|||||||||');
+      }else{
+        return false;
+      }
+    }else{
+      //root folder
+      setFolderMetadata({
+        eElementId: '',
+        eName: '',
+        eFullPath: '',
+        owner: addrParam,
+        createdAt: 0,
+        sizeInBytes: 0,
+        isFolder: true,
+        isPublic: true
+      });
+      console.log('|||||||||');
+      console.log({
+        eElementId: '',
+        eName: '',
+        eFullPath: '',
+        owner: addrParam,
+        createdAt: 0,
+        sizeInBytes: 0,
+        isFolder: true,
+        isPublic: true
+      });
+      console.log('|||||||||');
+    }
+  }
+
   useEffect(() => {
     setAddr(walletAddress);
   }, [walletAddress]);
 
   useEffect(() => {
       fetchItems(addr, path);
+      fetchFolderMetadata(addr, path);
   }, [path, addr])
 
   useEffect( async () => {
@@ -120,7 +184,8 @@ export default function Home({walletAddress, identityProp, pathProp}) {
               createdAt: e[4],
               sizeInBytes: e[5],
               isFolder: e[6],
-              isPublic: e[7]
+              isPublic: e[7],
+              eElementIdSymmetricObj: e[8]
             }
           }
         )
@@ -156,7 +221,20 @@ export default function Home({walletAddress, identityProp, pathProp}) {
     
     Swal.fire({
       title: 'Upload File',
-      input: 'file',
+      html:
+      '<input id="file-input" class="form-control" type="file">' +
+      '<div class="form-check" style="text-align: left; margin-left: 10px; margin-top: 5px;">' +
+        '<input class="form-check-input" type="radio" name="visibility" value="private" id="isFilePrivate" checked>' +
+        '<label class="form-check-label" for="flexRadioDefault1">' +
+          ' Private' +
+        '</label>' +
+      '</div>' + 
+      '<div class="form-check" style="text-align: left; margin-left: 10px;">' +
+        '<input class="form-check-input" type="radio" name="visibility" value="public" id="isFilePublic" >' +
+        '<label class="form-check-label"  for="flexRadioDefault2">' +
+          ' Public' +
+        '</label>' +
+      '</div>',
       inputAttributes: {
         autocapitalize: 'off'
       },
@@ -169,19 +247,30 @@ export default function Home({walletAddress, identityProp, pathProp}) {
       showCancelButton: true,
       confirmButtonText: 'Upload',
       showLoaderOnConfirm: true,
-      preConfirm: async (fileToUpload) => {
+      preConfirm: async () => {
         try{
+          const fileToUpload = document.getElementById('file-input').files[0];
+          const isPublic = document.getElementById('isFilePublic').checked;
           console.log(fileToUpload);
+          console.log(isPublic);
           if (fileToUpload && fileToUpload.size > 100 * 1024 * 1024){
             alert('Point Drive for now only supports files until 100 MB.')  
           }
+          
           if(fileToUpload){
             const formData = new FormData()
             formData.append("postfile", fileToUpload);
             const res = await window.point.storage.postFile(formData);
-            const fileId = res.data;
+            let fileId = res.data;
             console.log('FileId created: ' + fileId);
             if(fileId){
+              let fileName = fileToUpload.name;
+              let fileIdSO = '';
+              if(!isPublic){
+                let result = await window.point.wallet.encryptData({ publicKey, data: fileId });
+                fileId = result.data.encryptedMessage;
+                fileIdSO = result.data.encryptedSymmetricObjJSON;
+              }
               const response = await window.point.contract.call({
                 contract: 'PointDrive', 
                 method: 'newFile', 
@@ -190,7 +279,8 @@ export default function Home({walletAddress, identityProp, pathProp}) {
                           path + (path !== '' ? '/' : '') + fileToUpload.name, 
                           path, 
                           fileToUpload.size,
-                          true]});
+                          isPublic,
+                          fileIdSO]});
               
               console.log('$$$$$$$$$');
               console.log(response);
@@ -238,8 +328,24 @@ export default function Home({walletAddress, identityProp, pathProp}) {
     }
 
     Swal.fire({
-        title: 'New folder name',
-        input: 'text',
+        title: 'New folder',
+        html:
+          '<div class="mb-3" style="text-align: left;" >' +
+            '<label for="folder-name" class="form-label">Name</label>' +
+            '<input type="text" class="form-control" id="folder-name" >' + 
+          '</div>' + 
+          '<div class="form-check" style="text-align: left; margin-left: 10px; margin-top: 5px;">' +
+            '<input class="form-check-input" type="radio" name="visibility" value="private" id="isFolderPrivate" checked>' +
+            '<label class="form-check-label" for="flexRadioDefault1">' +
+              ' Private' +
+            '</label>' +
+          '</div>' + 
+          '<div class="form-check" style="text-align: left; margin-left: 10px;">' +
+            '<input class="form-check-input" type="radio" name="visibility" value="public" id="isFolderPublic" >' +
+            '<label class="form-check-label"  for="flexRadioDefault2">' +
+              ' Public' +
+            '</label>' +
+          '</div>',
         inputAttributes: {
           autocapitalize: 'off'
         },
@@ -252,12 +358,18 @@ export default function Home({walletAddress, identityProp, pathProp}) {
         showCancelButton: true,
         confirmButtonText: 'Create',
         showLoaderOnConfirm: true,
-        preConfirm: async (folderName) => {
+        preConfirm: async () => {
           try{
+            const folderName = document.getElementById('folder-name').value;
+            const isPublic = document.getElementById('isFolderPublic').checked;
+            console.log('!!!!!!!!!!!!!!');
+            console.log(folderName);
+            console.log(isPublic);
+            console.log('!!!!!!!!!!!!!!');
             const response = await window.point.contract.call({
                 contract: 'PointDrive', 
                 method: 'newFolder', 
-                params: [folderName, path + (path !== '' ? '/' : '') + folderName, path, true]});
+                params: [folderName, path + (path !== '' ? '/' : '') + folderName, path, isPublic, '']});
             console.log('$$$$$$$$$');
             console.log(response);
             console.log('$$$$$$$$$')

@@ -16,6 +16,7 @@ export const ProvideAppContext = ({ children }) => {
   const [walletError, setWallerError] = useState();
   const [, setLocation] = useLocation();
   const [identity, setIdentity] = useState();
+  const [publicKey, setPublicKey] = useState();
 
   useEffect(() => {
     (async () => {
@@ -26,6 +27,11 @@ export const ProvideAppContext = ({ children }) => {
           owner: address,
         });
         setIdentity(result.data.identity);
+
+        const result2 = await window.point.identity.publicKeyByIdentity({
+          identity: result.data.identity
+        });
+        setPublicKey(result2.data.publicKey);
 
       } catch (e) {
         setWallerError(e);
@@ -41,6 +47,7 @@ export const ProvideAppContext = ({ children }) => {
     walletAddress,
     walletError,
     identity,
+    publicKey,
     goHome
   }
 

@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 const Main = () => {
 
-    const { walletAddress, identity } = useAppContext();
+    const { walletAddress, identity, publicKey } = useAppContext();
     const [path, setPath] = useState('');
 
     function changePathHandler(path){
@@ -23,7 +23,7 @@ const Main = () => {
                 <Route path='/'>
                     {   identity !== undefined && identity !== '' && 
                         walletAddress !== undefined && walletAddress !== '' ? 
-                    <Home walletAddress={walletAddress} identityProp={identity} pathProp={path}/>
+                    <Home publicKey={publicKey} walletAddress={walletAddress} identityProp={identity} pathProp={path}/>
                     : <div className="spinner-border"></div> }
                 </Route>
             <Footer />
