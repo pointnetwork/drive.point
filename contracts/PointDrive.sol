@@ -22,6 +22,7 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         uint256 sizeInBytes;
         bool isFolder;
         bool isPublic;
+        string eElementIdSymmetricObj;
     }
     address private _identityContractAddr;
     string private _identityHandle;
@@ -53,12 +54,24 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
             "You are not a deployer of this identity");
     }
 
+    modifier onlyAuthorized(address owner, string memory eFullPath) {
+        require (isAuthorized(owner, eFullPath), "Access denied");
+        _;
+    }
+
+    function isAuthorized(address owner, string memory eFullPath) public view returns(bool){
+        return  bytes(eFullPath).length == 0 || 
+                _ownerPathToElementMap[owner][eFullPath].isPublic == true || 
+                _ownerPathToElementMap[owner][eFullPath].owner == msg.sender;
+    }
+
     function newFile(string calldata eId, 
         string calldata eName, 
         string calldata eFullPath, 
         string calldata eParentPath,
         uint256 size, 
-        bool isPublic) public{
+        bool isPublic, 
+        string calldata eIdSO) public{
         
         //any other data integrity verification?
         //check if already exists?
@@ -76,16 +89,18 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
             block.timestamp,
             size,
             false,
-            isPublic
+            isPublic,
+            eIdSO
         );
 
         emit FileAdd(eId, eName, eFullPath, eParentPath, size, isPublic);
     }
 
-    function newFolder(string calldata eName, 
+    function newFolder(string calldata eName,
         string calldata eFullPath, 
         string calldata eParentPath,
-        bool isPublic) public{
+        bool isPublic,
+        string calldata eFullPathSO) public{
         //any other data integrity verification?
         //check if already exists?
         //allow overide? history?
@@ -101,23 +116,40 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
             block.timestamp,
             0,
             true,
-            isPublic
+            isPublic,
+            eFullPathSO
         );
 
         emit FolderAdd(eName, eFullPath, eParentPath, isPublic);
     }
 
-    function listElements(address owner, string calldata eFullPath) public view returns (StorageElement[] memory){
+    function listElements(address owner, string memory eFullPath) public view 
+                onlyAuthorized(owner, eFullPath) returns (StorageElement[] memory) {
+
         string[] memory paths = _ownerPathToChildrensPathsMap[owner][eFullPath];
         
-        StorageElement[] memory elements = new StorageElement[](paths.length);
+        bool[] memory authorizedIndex = new bool[](paths.length);
+        uint256 aCount = 0;
         for (uint256 i = 0; i < paths.length; i++) {
-            elements[i] = _ownerPathToElementMap[owner][paths[i]];
+            if (isAuthorized(owner, paths[i]) == true){
+                authorizedIndex[i] = true; 
+                aCount++;
+            }
+        }
+        
+        StorageElement[] memory elements = new StorageElement[](aCount);
+        uint256 j = 0;
+        for (uint256 i = 0; i < paths.length; i++) {
+            if(authorizedIndex[i] == true){
+                elements[j] = _ownerPathToElementMap[owner][paths[i]];
+                j++;
+            }
         }
         return elements;
     }
 
-    function getElementMetadata(address owner, string calldata eFullPath) public view returns (StorageElement memory){
+    function getElementMetadata(address owner, string calldata eFullPath) public view 
+                onlyAuthorized(owner, eFullPath) returns (StorageElement memory){
         return _ownerPathToElementMap[owner][eFullPath];
     }
 
