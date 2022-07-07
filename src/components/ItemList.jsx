@@ -10,7 +10,7 @@ export default function ItemList({items, openContextMenu, itemSelected, setItemS
                             id={item.eElementId} name={item.eName} path={item.eFullPath}
                             selected={itemSelected === item.eElementId} 
                             isPublic={item.isPublic}
-                            eElementIdSymmetricObj={item.eElementIdSymmetricObj}
+                            eSymmetricObj={item.eSymmetricObj}
                             openContextMenu={openContextMenu} 
                             setItemSelected={setItemSelected}
                             setPath={setPath}

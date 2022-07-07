@@ -2,7 +2,7 @@
 import './Item.css'
 
 export default function Item({id, name, type, path, 
-    openContextMenu, selected, isPublic, eElementIdSymmetricObj,
+    openContextMenu, selected, isPublic, eSymmetricObj,
     setItemSelected, setPath}) {
 
     async function openItem(e){
@@ -12,9 +12,7 @@ export default function Item({id, name, type, path,
             setPath(path);
         } else if (type === 'file'){
             if(!isPublic){
-                let result = await window.point.wallet.decryptData({ encryptedData: id, encryptedSymmetricObj: eElementIdSymmetricObj });
-                console.log(result.data);
-                window.open(`/_storage/${result.data.decryptedData}`, target='_blank');
+                window.open(`/_encryptedStorage/${id}?eSymmetricObj=${eSymmetricObj}`, target='_blank');
             }else{
                 window.open(`/_storage/${id}`, target='_blank');
             }

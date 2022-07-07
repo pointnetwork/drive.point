@@ -22,7 +22,7 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         uint256 sizeInBytes;
         bool isFolder;
         bool isPublic;
-        string eElementIdSymmetricObj;
+        string eSymmetricObj;
     }
     address private _identityContractAddr;
     string private _identityHandle;

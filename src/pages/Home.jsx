@@ -185,7 +185,7 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
               sizeInBytes: e[5],
               isFolder: e[6],
               isPublic: e[7],
-              eElementIdSymmetricObj: e[8]
+              eSymmetricObj: e[8]
             }
           }
         )
@@ -260,10 +260,21 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
           if(fileToUpload){
             const formData = new FormData()
             formData.append("postfile", fileToUpload);
-            const res = await window.point.storage.postFile(formData);
-            let fileId = res.data;
+            let fileId = '';
+            let encryptedSymmetricObj = '';
+            if(isPublic){
+              const res = await window.point.storage.postFile(formData);
+              fileId = res.data;
+            }else{
+              const res = await window.point.storage.encryptAndPostFile(formData, [identity]);
+              console.log(res);
+              fileId = res.data;
+              encryptedSymmetricObj = res.encryptedSymmetricObj;
+            }
+
             console.log('FileId created: ' + fileId);
             if(fileId){
+              /*
               let fileName = fileToUpload.name;
               let fileIdSO = '';
               if(!isPublic){
@@ -271,6 +282,7 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
                 fileId = result.data.encryptedMessage;
                 fileIdSO = result.data.encryptedSymmetricObjJSON;
               }
+              */
               const response = await window.point.contract.call({
                 contract: 'PointDrive', 
                 method: 'newFile', 
@@ -280,7 +292,7 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
                           path, 
                           fileToUpload.size,
                           isPublic,
-                          fileIdSO]});
+                          encryptedSymmetricObj]});
               
               console.log('$$$$$$$$$');
               console.log(response);
