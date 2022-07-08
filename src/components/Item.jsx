@@ -1,9 +1,12 @@
 
-import './Item.css'
+import './Item.css';
+import { useState, useEffect } from 'react';
 
 export default function Item({id, name, type, path, 
-    openContextMenu, selected, isPublic, eSymmetricObj,
+    openContextMenu, selected, isPublic, eSymmetricObj, eSymmetricObjName,
     setItemSelected, setPath}) {
+
+    const [presentedName, setPresentedName] = useState('');
 
     async function openItem(e){
         console.log('opened');
@@ -16,8 +19,6 @@ export default function Item({id, name, type, path,
             }else{
                 window.open(`/_storage/${id}`, target='_blank');
             }
-
-            
         }
     }
 
@@ -26,6 +27,20 @@ export default function Item({id, name, type, path,
         openContextMenu(parseInt(e.clientX), parseInt(e.clientY))
         setItemSelected(id);
     }
+
+
+
+    useEffect( async () => {
+        if (!isPublic && (type === 'file')){
+            const {
+                data: { decryptedData },
+            } = await window.point.wallet.decryptData({
+                encryptedData: name,
+                encryptedSymmetricObj: eSymmetricObjName,
+            });
+            setPresentedName(decryptedData);
+        }
+    }, [name, eSymmetricObjName]);
 
     return(
         
@@ -51,7 +66,7 @@ export default function Item({id, name, type, path,
                 : ''}
             </div>
             <div align="center" style={{fontSize: 11}}>
-                {name}
+                {isPublic || type === 'folder' ? name : presentedName}
             </div>
         </div>
             

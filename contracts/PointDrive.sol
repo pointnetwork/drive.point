@@ -71,7 +71,7 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         string calldata eParentPath,
         uint256 size, 
         bool isPublic, 
-        string calldata eIdSO) public{
+        string calldata eSymmetricObj) public{
         
         //any other data integrity verification?
         //check if already exists?
@@ -90,7 +90,7 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
             size,
             false,
             isPublic,
-            eIdSO
+            eSymmetricObj
         );
 
         emit FileAdd(eId, eName, eFullPath, eParentPath, size, isPublic);
@@ -100,7 +100,7 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         string calldata eFullPath, 
         string calldata eParentPath,
         bool isPublic,
-        string calldata eFullPathSO) public{
+        string calldata eSymmetricObj) public{
         //any other data integrity verification?
         //check if already exists?
         //allow overide? history?
@@ -117,7 +117,7 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
             0,
             true,
             isPublic,
-            eFullPathSO
+            eSymmetricObj
         );
 
         emit FolderAdd(eName, eFullPath, eParentPath, isPublic);

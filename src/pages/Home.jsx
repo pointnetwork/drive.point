@@ -176,6 +176,17 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
       if(response.data){
         const mappedData = response.data.map( e => 
           { 
+            let eSymmObjFiels;
+            if(!e[7] && !e[6]){
+              eSymmObjFiels = JSON.parse(e[8]);
+            }else{
+              eSymmObjFiels = {
+                file: '',
+                name: '',
+                path: ''
+              }
+            }
+            
             return {
               eElementId: e[0],
               eName: e[1],
@@ -185,7 +196,9 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
               sizeInBytes: e[5],
               isFolder: e[6],
               isPublic: e[7],
-              eSymmetricObj: e[8]
+              eSymmetricObj: eSymmObjFiels.file,
+              eSymmetricObjName: eSymmObjFiels.name,
+              eSymmetricObjPath: eSymmObjFiels.path
             }
           }
         )
@@ -262,14 +275,31 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
             formData.append("postfile", fileToUpload);
             let fileId = '';
             let encryptedSymmetricObj = '';
+            let pathName = path + (path !== '' ? '/' : '') + fileToUpload.name;
+            let fileName = fileToUpload.name;
             if(isPublic){
               const res = await window.point.storage.postFile(formData);
               fileId = res.data;
             }else{
-              const res = await window.point.storage.encryptAndPostFile(formData, [identity]);
+              const res = await window.point.storage.encryptAndPostFile(formData, [identity], [fileName, pathName]);
               console.log(res);
               fileId = res.data;
-              encryptedSymmetricObj = res.encryptedSymmetricObj;
+              console.log('-------- METADATA --------- ');
+              console.log(res.metadata);
+              console.log('--------------------------- ');
+              fileName = res.metadata[0];
+
+              //just first field (file)
+              encryptedSymmetricObj = JSON.stringify({
+                file: res.encryptedMessagesSymmetricObjs[0][0].encryptedSymmetricObjJSON,
+                name: res.encryptedMessagesSymmetricObjs[1][0].encryptedSymmetricObjJSON,
+                path: res.encryptedMessagesSymmetricObjs[2][0].encryptedSymmetricObjJSON,
+              });
+
+              console.log('-------- SYMM --------- ');
+              console.log(res.encryptedMessagesSymmetricObjs);
+              console.log(encryptedSymmetricObj);
+              console.log('--------------------------- ');
             }
 
             console.log('FileId created: ' + fileId);
@@ -287,7 +317,7 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
                 contract: 'PointDrive', 
                 method: 'newFile', 
                 params: [ fileId, 
-                          fileToUpload.name,
+                          fileName,
                           path + (path !== '' ? '/' : '') + fileToUpload.name, 
                           path, 
                           fileToUpload.size,

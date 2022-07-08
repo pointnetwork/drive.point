@@ -11,6 +11,7 @@ export default function ItemList({items, openContextMenu, itemSelected, setItemS
                             selected={itemSelected === item.eElementId} 
                             isPublic={item.isPublic}
                             eSymmetricObj={item.eSymmetricObj}
+                            eSymmetricObjName={item.eSymmetricObjName}
                             openContextMenu={openContextMenu} 
                             setItemSelected={setItemSelected}
                             setPath={setPath}
