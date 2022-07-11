@@ -73,9 +73,29 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         bool isPublic, 
         string calldata eSymmetricObj) public{
         
-        //any other data integrity verification?
-        //check if already exists?
-        //allow override? history?
+        //empty 
+        require(bytes(eId).length != 0, "Id cannot be empty");
+        require(bytes(eName).length != 0, "Name cannot be empty");
+        require(bytes(eFullPath).length != 0, "Path cannot be empty");
+
+        //already exists
+        StorageElement memory _intendedPah = _ownerPathToElementMap[msg.sender][eFullPath];
+        require(bytes(_intendedPah.eName).length == 0, "Path already exists");
+
+        //compatible parent permission
+        if(bytes(eParentPath).length != 0){
+            //if parent is not root
+
+            //parent must exists
+            StorageElement memory _parent = _ownerPathToElementMap[msg.sender][eParentPath];
+            require(bytes(_parent.eName).length != 0, "Parent path does not exists");
+
+            //if is public parent must be public
+            if(isPublic){
+                require(_parent.isPublic, "Cannot create a public file inside a private one");
+            }
+        }
+        //else root is always public
 
         //link the file with the folder
         _ownerPathToChildrensPathsMap[msg.sender][eParentPath].push(eFullPath);
@@ -101,9 +121,29 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         string calldata eParentPath,
         bool isPublic,
         string calldata eSymmetricObj) public{
-        //any other data integrity verification?
-        //check if already exists?
-        //allow overide? history?
+        
+        //empty 
+        require(bytes(eName).length != 0, "Name cannot be empty");
+        require(bytes(eFullPath).length != 0, "Path cannot be empty");
+
+        //already exists
+        StorageElement memory _intendedPah = _ownerPathToElementMap[msg.sender][eFullPath];
+        require(bytes(_intendedPah.eName).length == 0, "Path already exists");
+
+        //compatible parent permission
+        if(bytes(eParentPath).length != 0){
+            //if parent is not root
+
+            //parent must exists
+            StorageElement memory _parent = _ownerPathToElementMap[msg.sender][eParentPath];
+            require(bytes(_parent.eName).length != 0, "Parent path does not exists");
+
+            //if is public parent must be public
+            if(isPublic){
+                require(_parent.isPublic, "Cannot create a public folder inside a private one");
+            }
+        }
+        //else root is always public
 
         //link the folder with the parent folder
         _ownerPathToChildrensPathsMap[msg.sender][eParentPath].push(eFullPath);
