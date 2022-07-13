@@ -13,6 +13,7 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
   const [items, setItems] = useState([]);
   const [itemSelected, setItemSelected] = useState('');
   const [path, setPath] = useState('');
+  const [decyptedPath, setDecryptedPath] = useState('');
   const [addr, setAddr] = useState(walletAddress);
   const [identity, setIdentity] = useState(identityProp);
   const [folderMetadata, setFolderMetadata] = useState({});
@@ -177,7 +178,7 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
         const mappedData = response.data.map( e => 
           { 
             let eSymmObjFiels;
-            if(!e[7] && !e[6]){
+            if(!e[7]){
               eSymmObjFiels = JSON.parse(e[8]);
             }else{
               eSymmObjFiels = {
@@ -288,6 +289,7 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
               console.log(res.metadata);
               console.log('--------------------------- ');
               fileName = res.metadata[0];
+              pathName = res.metadata[1];
 
               //just first field (file)
               encryptedSymmetricObj = JSON.stringify({
@@ -313,13 +315,23 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
                 fileIdSO = result.data.encryptedSymmetricObjJSON;
               }
               */
+
+              console.log('File create:')
+              console.log([ fileId, 
+                fileName,
+                pathName, 
+                folderMetadata.eFullPath, 
+                fileToUpload.size,
+                isPublic,
+                encryptedSymmetricObj]);
+
               const response = await window.point.contract.call({
                 contract: 'PointDrive', 
                 method: 'newFile', 
                 params: [ fileId, 
                           fileName,
-                          path + (path !== '' ? '/' : '') + fileToUpload.name, 
-                          path, 
+                          pathName, 
+                          folderMetadata.eFullPath, 
                           fileToUpload.size,
                           isPublic,
                           encryptedSymmetricObj]});
@@ -402,16 +414,42 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
         showLoaderOnConfirm: true,
         preConfirm: async () => {
           try{
-            const folderName = document.getElementById('folder-name').value;
-            const isPublic = document.getElementById('isFolderPublic').checked;
+            let folderName = document.getElementById('folder-name').value;
+            let isPublic = document.getElementById('isFolderPublic').checked;
             console.log('!!!!!!!!!!!!!!');
             console.log(folderName);
             console.log(isPublic);
             console.log('!!!!!!!!!!!!!!');
+
+            let fullPath = path + (path !== '' ? '/' : '') + folderName;
+            let eSymmObjFields = '';
+            if(!isPublic){
+              let folderNameEnc = await window.point.wallet.encryptData({ publicKey, data: folderName })
+              let fullPathEnc = await window.point.wallet.encryptData({ publicKey, data: fullPath });
+              folderNameEnc = folderNameEnc.data;
+              fullPathEnc = fullPathEnc.data;
+              eSymmObjFields = {
+                name: folderNameEnc.encryptedSymmetricObjJSON,
+                path: fullPathEnc.encryptedSymmetricObjJSON
+              }
+              eSymmObjFields = JSON.stringify(eSymmObjFields);
+              folderName = folderNameEnc.encryptedMessage;
+              fullPath = fullPathEnc.encryptedMessage;
+            }
+            //encryptedMessage, encryptedSymmetricObj, encryptedSymmetricObjJSON
+
+            console.log([folderName, 
+              fullPath, 
+              path, 
+              isPublic, eSymmObjFields]);
+            
             const response = await window.point.contract.call({
                 contract: 'PointDrive', 
                 method: 'newFolder', 
-                params: [folderName, path + (path !== '' ? '/' : '') + folderName, path, isPublic, '']});
+                params: [folderName, 
+                  fullPath, 
+                  path, 
+                  isPublic, eSymmObjFields]});
             console.log('$$$$$$$$$');
             console.log(response);
             console.log('$$$$$$$$$')
@@ -449,9 +487,9 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
         <div className="col-10" style={{paddingLeft: 20}}>
           <Toolbar uploadHandler={openUploadDialog} newFolderHandler={openNewFolderDialog} />
           <br/>
-          <Breadcrumb identity={identity} path={path} setPath={setPath} />
+          <Breadcrumb addrParam={addr} identity={identity} path={path} setPath={setPath} decyptedPath={decyptedPath} isPublic={folderMetadata.isPublic} />
           <ItemList items={items} itemSelected={itemSelected} 
-              openContextMenu={openContextMenu} 
+              openContextMenu={openContextMenu} setDecryptedPath={setDecryptedPath}
               setItemSelected={setItemSelected} setPath={setPath} />  
         </div>
       </div>

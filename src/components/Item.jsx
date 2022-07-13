@@ -3,16 +3,18 @@ import './Item.css';
 import { useState, useEffect } from 'react';
 
 export default function Item({id, name, type, path, 
-    openContextMenu, selected, isPublic, eSymmetricObj, eSymmetricObjName,
-    setItemSelected, setPath}) {
+    openContextMenu, selected, isPublic, eSymmetricObj, eSymmetricObjName, eSymmetricObjPath,
+    setItemSelected, setPath, setDecryptedPath}) {
 
     const [presentedName, setPresentedName] = useState('');
+    const [presentedPath, setPresentedPath] = useState('');
 
     async function openItem(e){
         console.log('opened');
         console.log(e.target);
         if(type === 'folder'){
             setPath(path);
+            setDecryptedPath(presentedPath);
         } else if (type === 'file'){
             if(!isPublic){
                 window.open(`/_encryptedStorage/${id}?eSymmetricObj=${eSymmetricObj}`, target='_blank');
@@ -31,14 +33,20 @@ export default function Item({id, name, type, path,
 
 
     useEffect( async () => {
-        if (!isPublic && (type === 'file')){
-            const {
-                data: { decryptedData },
-            } = await window.point.wallet.decryptData({
+        if (!isPublic){
+            let r = await window.point.wallet.decryptData({
                 encryptedData: name,
                 encryptedSymmetricObj: eSymmetricObjName,
             });
-            setPresentedName(decryptedData);
+            setPresentedName(r.data.decryptedData);
+
+            r = await window.point.wallet.decryptData({
+                encryptedData: path,
+                encryptedSymmetricObj: eSymmetricObjPath,
+            });
+            setPresentedPath(r.data.decryptedData);
+
+            
         }
     }, [name, eSymmetricObjName]);
 
@@ -66,7 +74,7 @@ export default function Item({id, name, type, path,
                 : ''}
             </div>
             <div align="center" style={{fontSize: 11}}>
-                {isPublic || type === 'folder' ? name : presentedName}
+                {isPublic ? name : presentedName}
             </div>
         </div>
             
