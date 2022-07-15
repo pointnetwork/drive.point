@@ -6,10 +6,8 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "point-contract-manager/contracts/IIdentity.sol";
 
-interface IIdentity {
-    function isIdentityDeployer(string memory, address) external returns (bool);
-}
 
 contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
 
@@ -49,7 +47,7 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         _identityHandle = identityHandle;
     }
     
-    function _authorizeUpgrade(address) internal override {
+    function _authorizeUpgrade(address) internal view override {
         require(IIdentity(_identityContractAddr).isIdentityDeployer(_identityHandle, msg.sender), 
             "You are not a deployer of this identity");
     }
