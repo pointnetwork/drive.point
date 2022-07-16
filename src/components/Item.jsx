@@ -1,25 +1,26 @@
 
-import './Item.css'
+import './Item.css';
+import { useState, useEffect } from 'react';
 
 export default function Item({id, name, type, path, 
-    openContextMenu, selected, isPublic, eElementIdSymmetricObj,
-    setItemSelected, setPath}) {
+    openContextMenu, selected, isPublic, eSymmetricObj, eSymmetricObjName, eSymmetricObjPath,
+    setItemSelected, setPath, setDecryptedPath}) {
+
+    const [presentedName, setPresentedName] = useState('');
+    const [presentedPath, setPresentedPath] = useState('');
 
     async function openItem(e){
         console.log('opened');
         console.log(e.target);
         if(type === 'folder'){
             setPath(path);
+            setDecryptedPath(presentedPath);
         } else if (type === 'file'){
             if(!isPublic){
-                let result = await window.point.wallet.decryptData({ encryptedData: id, encryptedSymmetricObj: eElementIdSymmetricObj });
-                console.log(result.data);
-                window.open(`/_storage/${result.data.decryptedData}`, target='_blank');
+                window.open(`/_encryptedStorage/${id}?eSymmetricObj=${eSymmetricObj}`, target='_blank');
             }else{
                 window.open(`/_storage/${id}`, target='_blank');
             }
-
-            
         }
     }
 
@@ -28,6 +29,26 @@ export default function Item({id, name, type, path,
         openContextMenu(parseInt(e.clientX), parseInt(e.clientY))
         setItemSelected(id);
     }
+
+
+
+    useEffect( async () => {
+        if (!isPublic){
+            let r = await window.point.wallet.decryptData({
+                encryptedData: name,
+                encryptedSymmetricObj: eSymmetricObjName,
+            });
+            setPresentedName(r.data.decryptedData);
+
+            r = await window.point.wallet.decryptData({
+                encryptedData: path,
+                encryptedSymmetricObj: eSymmetricObjPath,
+            });
+            setPresentedPath(r.data.decryptedData);
+
+            
+        }
+    }, [name, eSymmetricObjName]);
 
     return(
         
@@ -53,7 +74,7 @@ export default function Item({id, name, type, path,
                 : ''}
             </div>
             <div align="center" style={{fontSize: 11}}>
-                {name}
+                {isPublic ? name : presentedName}
             </div>
         </div>
             

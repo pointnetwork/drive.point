@@ -65,8 +65,8 @@ describe("PointDrive", function () {
         driveContract.newFile(
           "hashId",
           "test.txt",
-          "/home/diogo/test.txt",
-          "/home/diogo",
+          "test.txt",
+          "",
           200,
           false,
           ''
@@ -78,8 +78,8 @@ describe("PointDrive", function () {
       await expect(
         driveContract.newFolder(
           "diogo",
-          "/home/diogo",
-          "/home",
+          "diogo",
+          "",
           false,
           ''
         )
@@ -89,8 +89,8 @@ describe("PointDrive", function () {
     it("Should get file metadata", async function () {
       const id = "hashId";
       const name = "test.txt";
-      const fullPath = "/home/diogo/test.txt";
-      const parent = "/home/diogo";
+      const fullPath = "test.txt";
+      const parent = "";
       const size = 200;
       const isPublic = false;
 
@@ -116,8 +116,8 @@ describe("PointDrive", function () {
     it("Should denny access to get private file metadata from other users", async function () {
       const id = "hashId";
       const name = "test.txt";
-      const fullPath = "/home/diogo/test.txt";
-      const parent = "/home/diogo";
+      const fullPath = "test.txt";
+      const parent = "";
       const size = 200;
       const isPublic = false;
 
@@ -138,8 +138,8 @@ describe("PointDrive", function () {
     it("Should grant access to get public file metadata from other users", async function () {
       const id = "hashId";
       const name = "test.txt";
-      const fullPath = "/home/diogo/test.txt";
-      const parent = "/home/diogo";
+      const fullPath = "test.txt";
+      const parent = "";
       const size = 200;
       const isPublic = true;
 

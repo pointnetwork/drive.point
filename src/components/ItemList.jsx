@@ -1,7 +1,7 @@
 
 import Item from './Item';
 
-export default function ItemList({items, openContextMenu, itemSelected, setItemSelected, setPath}){
+export default function ItemList({items, openContextMenu, itemSelected, setItemSelected, setPath, setDecryptedPath}){
 
     return(
         <div style={{overflow: "hidden"}} >
@@ -10,10 +10,13 @@ export default function ItemList({items, openContextMenu, itemSelected, setItemS
                             id={item.eElementId} name={item.eName} path={item.eFullPath}
                             selected={itemSelected === item.eElementId} 
                             isPublic={item.isPublic}
-                            eElementIdSymmetricObj={item.eElementIdSymmetricObj}
+                            eSymmetricObj={item.eSymmetricObj}
+                            eSymmetricObjName={item.eSymmetricObjName}
+                            eSymmetricObjPath={item.eSymmetricObjPath}
                             openContextMenu={openContextMenu} 
                             setItemSelected={setItemSelected}
                             setPath={setPath}
+                            setDecryptedPath={setDecryptedPath}
                             />
             ) : <i>No items found.</i>}
         </div>

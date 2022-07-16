@@ -6,10 +6,8 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "point-contract-manager/contracts/IIdentity.sol";
 
-interface IIdentity {
-    function isIdentityDeployer(string memory, address) external returns (bool);
-}
 
 contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
 
@@ -22,7 +20,7 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         uint256 sizeInBytes;
         bool isFolder;
         bool isPublic;
-        string eElementIdSymmetricObj;
+        string eSymmetricObj;
     }
     address private _identityContractAddr;
     string private _identityHandle;
@@ -49,7 +47,7 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         _identityHandle = identityHandle;
     }
     
-    function _authorizeUpgrade(address) internal override {
+    function _authorizeUpgrade(address) internal view override {
         require(IIdentity(_identityContractAddr).isIdentityDeployer(_identityHandle, msg.sender), 
             "You are not a deployer of this identity");
     }
@@ -71,11 +69,31 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         string calldata eParentPath,
         uint256 size, 
         bool isPublic, 
-        string calldata eIdSO) public{
+        string calldata eSymmetricObj) public{
         
-        //any other data integrity verification?
-        //check if already exists?
-        //allow override? history?
+        //empty 
+        require(bytes(eId).length != 0, "Id cannot be empty");
+        require(bytes(eName).length != 0, "Name cannot be empty");
+        require(bytes(eFullPath).length != 0, "Path cannot be empty");
+
+        //already exists
+        StorageElement memory _intendedPah = _ownerPathToElementMap[msg.sender][eFullPath];
+        require(bytes(_intendedPah.eName).length == 0, "Path already exists");
+
+        //compatible parent permission
+        if(bytes(eParentPath).length != 0){
+            //if parent is not root
+
+            //parent must exists
+            StorageElement memory _parent = _ownerPathToElementMap[msg.sender][eParentPath];
+            require(bytes(_parent.eName).length != 0, "Parent path does not exists");
+
+            //if is public parent must be public
+            if(isPublic){
+                require(_parent.isPublic, "Cannot create a public file inside a private one");
+            }
+        }
+        //else root is always public
 
         //link the file with the folder
         _ownerPathToChildrensPathsMap[msg.sender][eParentPath].push(eFullPath);
@@ -90,7 +108,7 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
             size,
             false,
             isPublic,
-            eIdSO
+            eSymmetricObj
         );
 
         emit FileAdd(eId, eName, eFullPath, eParentPath, size, isPublic);
@@ -100,10 +118,30 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         string calldata eFullPath, 
         string calldata eParentPath,
         bool isPublic,
-        string calldata eFullPathSO) public{
-        //any other data integrity verification?
-        //check if already exists?
-        //allow overide? history?
+        string calldata eSymmetricObj) public{
+        
+        //empty 
+        require(bytes(eName).length != 0, "Name cannot be empty");
+        require(bytes(eFullPath).length != 0, "Path cannot be empty");
+
+        //already exists
+        StorageElement memory _intendedPah = _ownerPathToElementMap[msg.sender][eFullPath];
+        require(bytes(_intendedPah.eName).length == 0, "Path already exists");
+
+        //compatible parent permission
+        if(bytes(eParentPath).length != 0){
+            //if parent is not root
+
+            //parent must exists
+            StorageElement memory _parent = _ownerPathToElementMap[msg.sender][eParentPath];
+            require(bytes(_parent.eName).length != 0, "Parent path does not exists");
+
+            //if is public parent must be public
+            if(isPublic){
+                require(_parent.isPublic, "Cannot create a public folder inside a private one");
+            }
+        }
+        //else root is always public
 
         //link the folder with the parent folder
         _ownerPathToChildrensPathsMap[msg.sender][eParentPath].push(eFullPath);
@@ -117,7 +155,7 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
             0,
             true,
             isPublic,
-            eFullPathSO
+            eSymmetricObj
         );
 
         emit FolderAdd(eName, eFullPath, eParentPath, isPublic);
