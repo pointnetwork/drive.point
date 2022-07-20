@@ -39,13 +39,8 @@ export default function Item({id, name, type, path,
 
 
     useEffect( async () => {
-        console.log(1);
         if (isPublic){
-            console.log(2);
-            console.log('eSymmetricObjName = ' + eSymmetricObjName);
-            console.log('eSymmetricObjPath = ' + eSymmetricObjPath);
             if(eSymmetricObjName !== '' || eSymmetricObjPath !== ''){
-                console.log(3);
                 let r = await window.point.wallet.decryptDataWithDecryptedKey({
                     encryptedData: name,
                     symmetricObj: eSymmetricObjName,
@@ -58,12 +53,10 @@ export default function Item({id, name, type, path,
                 });
                 setPresentedPath(r.data.decryptedData);
             }else{
-                console.log(4);
                 setPresentedName(name);
                 setPresentedPath(path);
             }
         } else {
-            console.log(5);
             let r = await window.point.wallet.decryptData({
                 encryptedData: name,
                 encryptedSymmetricObj: eSymmetricObjName,
