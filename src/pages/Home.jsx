@@ -5,6 +5,7 @@ import Sidebar from '../components/Sidebar';
 import Toolbar from '../components/Toolbar';
 import Breadcrumb from '../components/Breadcrumb';
 import ItemList from '../components/ItemList';
+import Share from '../components/Share';
 import Swal from 'sweetalert2';
  
 export default function Home({publicKey, walletAddress, identityProp, pathProp}) {
@@ -24,9 +25,7 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
   console.log('+++++++++++++++++');
 
   function openContextMenu(x, y){
-    /*
     setContextMenuState({open: true, x, y});
-    */
   }
 
   function closeContextMenu(e){
@@ -178,7 +177,7 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
         const mappedData = response.data.map( e => 
           { 
             let eSymmObjFiels;
-            if(!e[7]){
+            if(!e[7] || e[8] !== ''){
               eSymmObjFiels = JSON.parse(e[8]);
             }else{
               eSymmObjFiels = {
@@ -496,13 +495,17 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
       <div className="dropdown" style={{position: 'fixed', 
       left: contextMenuState.x, top: contextMenuState.y}}>
           <ul className={ contextMenuState.open ? "dropdown-menu show" : "dropdown-menu"} aria-labelledby="dropdownMenuButton1">
-              <li><a className="dropdown-item" href="#">Share</a></li>
+              <Share itemSelected={itemSelected} fetchItems={fetchItems} addr={addr} path={path} />
+              {
+              /*
               <li><a className="dropdown-item" href="#">Download</a></li>
               <li><a className="dropdown-item" href="#">Delete</a></li>
               <li><a className="dropdown-item" href="#">Move to</a></li>
               <li><a className="dropdown-item" href="#">Copy to</a></li>
               <li><a className="dropdown-item" href="#">Rename</a></li>
               <li><a className="dropdown-item" href="#">Details</a></li>
+              */
+              }
           </ul>
       </div>
       </Container>
