@@ -191,4 +191,14 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         return _ownerPathToElementMap[owner][eFullPath];
     }
 
+
+    function shareToPublic(string memory eFullPath, string memory symmetricObj) public{
+        require(bytes(_ownerPathToElementMap[msg.sender][eFullPath].eFullPath).length != 0, "Element cannot be empty or root folder");
+        require(!_ownerPathToElementMap[msg.sender][eFullPath].isFolder, "Cannot change visibility to public of a folder");
+        require(bytes(symmetricObj).length != 0, "SymmetricObj cannot be empty");
+        
+        _ownerPathToElementMap[msg.sender][eFullPath].isPublic = true;
+        _ownerPathToElementMap[msg.sender][eFullPath].eSymmetricObj = symmetricObj;
+    }
+
 }

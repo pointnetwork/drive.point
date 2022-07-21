@@ -19,7 +19,12 @@ export default function Item({id, name, type, path,
             if(!isPublic){
                 window.open(`/_encryptedStorage/${id}?eSymmetricObj=${eSymmetricObj}`, target='_blank');
             }else{
-                window.open(`/_storage/${id}`, target='_blank');
+                if(eSymmetricObj !== ''){
+                    //public but previously was private
+                    window.open(`/_encryptedStorage/${id}?symmetricObj=${eSymmetricObj}`, target='_blank');
+                }else{
+                    window.open(`/_storage/${id}`, target='_blank');
+                }
             }
         }
     }
@@ -27,13 +32,31 @@ export default function Item({id, name, type, path,
     function openContextMenuHandler(e){
         e.preventDefault()
         openContextMenu(parseInt(e.clientX), parseInt(e.clientY))
-        setItemSelected(id);
+        setItemSelected({id, name, type, path, isPublic, presentedName, presentedPath, 
+            eSymmetricObj, eSymmetricObjName, eSymmetricObjPath});
     }
 
 
 
     useEffect( async () => {
-        if (!isPublic){
+        if (isPublic){
+            if(eSymmetricObjName !== '' || eSymmetricObjPath !== ''){
+                let r = await window.point.wallet.decryptDataWithDecryptedKey({
+                    encryptedData: name,
+                    symmetricObj: eSymmetricObjName,
+                });
+                setPresentedName(r.data.decryptedData);
+    
+                r = await window.point.wallet.decryptDataWithDecryptedKey({
+                    encryptedData: path,
+                    symmetricObj: eSymmetricObjPath,
+                });
+                setPresentedPath(r.data.decryptedData);
+            }else{
+                setPresentedName(name);
+                setPresentedPath(path);
+            }
+        } else {
             let r = await window.point.wallet.decryptData({
                 encryptedData: name,
                 encryptedSymmetricObj: eSymmetricObjName,
@@ -45,16 +68,15 @@ export default function Item({id, name, type, path,
                 encryptedSymmetricObj: eSymmetricObjPath,
             });
             setPresentedPath(r.data.decryptedData);
-
-            
         }
+
     }, [name, eSymmetricObjName]);
 
     return(
         
         <div className={ selected ?  "itemSelected" : "item"} 
             onDoubleClick={openItem} 
-            /*onContextMenu={openContextMenuHandler}*/
+            onContextMenu={openContextMenuHandler}
             >
             <div align="center">
             
@@ -74,7 +96,7 @@ export default function Item({id, name, type, path,
                 : ''}
             </div>
             <div align="center" style={{fontSize: 11}}>
-                {isPublic ? name : presentedName}
+                {presentedName}
             </div>
         </div>
             
