@@ -27,7 +27,7 @@ export default function Share({itemSelected, fetchItems, path, addr}){
               '<div class="form-check" style="text-align: left; margin-left: 10px; margin-top: 5px;">' +
                 '<input class="form-check-input" type="radio" name="visibility" value="private" id="isRestrictedShare">' +
                 '<label class="form-check-label" for="flexRadioDefault1">' +
-                  ' Restricted' +
+                  ' Private' +
                 '</label>' +
               '</div>',
             inputAttributes: {
