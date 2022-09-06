@@ -9,6 +9,22 @@ export default function Item({id, name, type, path,
     const [presentedName, setPresentedName] = useState('');
     const [presentedPath, setPresentedPath] = useState('');
 
+    const downloadFileFromStorage = async ({fileId, symmetricObj, eSymmetricObj}) => {
+        let blob
+        if (symmetricObj || eSymmetricObj) {
+            blob = await window.point.storage.getEncryptedFile({id: fileId, symmetricObj, eSymmetricObj})
+        } else {
+            blob = await window.point.storage.getFile({id: fileId})
+        }
+        const url  = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    }
+
     async function openItem(e){
         console.log('opened');
         console.log(e.target);
@@ -17,13 +33,13 @@ export default function Item({id, name, type, path,
             setDecryptedPath(presentedPath);
         } else if (type === 'file'){
             if(!isPublic){
-                window.open(`/_encryptedStorage/${id}?eSymmetricObj=${eSymmetricObj}`, target='_blank');
+                await downloadFileFromStorage({fileId: id, eSymmetricObj})
             }else{
                 if(eSymmetricObj !== ''){
                     //public but previously was private
-                    window.open(`/_encryptedStorage/${id}?symmetricObj=${eSymmetricObj}`, target='_blank');
+                    await downloadFileFromStorage({fileId: id, symmetricObj: eSymmetricObj})
                 }else{
-                    window.open(`/_storage/${id}`, target='_blank');
+                    await downloadFileFromStorage({fileId: id})
                 }
             }
         }
