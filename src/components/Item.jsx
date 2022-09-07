@@ -38,6 +38,22 @@ export default function Item({id, name, type, path,
     const [presentedName, setPresentedName] = useState('');
     const [presentedPath, setPresentedPath] = useState('');
 
+    const downloadFileFromStorage = async ({fileId, symmetricObj, eSymmetricObj}) => {
+        let blob
+        if (symmetricObj || eSymmetricObj) {
+            blob = await window.point.storage.getEncryptedFile({id: fileId, symmetricObj, eSymmetricObj})
+        } else {
+            blob = await window.point.storage.getFile({id: fileId})
+        }
+        const url  = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    }
+
     async function openItem(e){
         console.log('opened');
         //console.log(e.target);
@@ -46,29 +62,13 @@ export default function Item({id, name, type, path,
             setDecryptedPath(presentedPath);
         } else if (type === 'file'){
             if(!isPublic){
-                const blob = await window.point.storage.getEncryptedFile(
-                    {
-                        id: `${id}`,
-                        eSymmetricObj: `${eSymmetricObj}`
-                    }
-                );
-                downloadBlob(blob, `${presentedName}`);
-                //window.open(`/_encryptedStorage/${id}?eSymmetricObj=${eSymmetricObj}`, target='_blank');
+                await downloadFileFromStorage({fileId: id, eSymmetricObj})
             }else{
                 if(eSymmetricObj !== ''){
                     //public but previously was private
-                    const blob = await window.point.storage.getEncryptedFile(
-                        {
-                            id: `${id}`,
-                            symmetricObj: `${eSymmetricObj}`
-                        }
-                    );
-                    downloadBlob(blob, `${presentedName}`);
-                    //window.open(`/_encryptedStorage/${id}?symmetricObj=${eSymmetricObj}`, target='_blank');
+                    await downloadFileFromStorage({fileId: id, symmetricObj: eSymmetricObj})
                 }else{
-                    //window.open(`/_storage/${id}`, target='_blank');
-                    const blob = await window.point.storage.getFile({id: `${id}`});
-                    downloadBlob(blob, `${presentedName}`);
+                    await downloadFileFromStorage({fileId: id})
                 }
             }
         }
