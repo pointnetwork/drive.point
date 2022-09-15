@@ -35,5 +35,10 @@ module.exports = {
             }
         }
     ],   
-}
+    },
+    networks: {
+        development: {
+            url: 'http://localhost:7545'
+        }
+    },
 };

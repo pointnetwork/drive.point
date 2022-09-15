@@ -487,7 +487,7 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
           <Sidebar setShared={setShared} setAddr={setAddr} walletAddress={walletAddress} setIdentity={setIdentity} identityProp={identityProp} setPath={setPath} />
         </div>
         <div className="col-9" style={{paddingLeft: 20}}>
-          <Toolbar uploadHandler={openUploadDialog} newFolderHandler={openNewFolderDialog} />
+          <Toolbar shared={shared} uploadHandler={openUploadDialog} newFolderHandler={openNewFolderDialog} />
           <br/>
           <Breadcrumb addrParam={addr} identity={identity} path={path} setPath={setPath} decyptedPath={decyptedPath} isPublic={folderMetadata.isPublic} />
           <ItemList items={items} itemSelected={itemSelected} 
