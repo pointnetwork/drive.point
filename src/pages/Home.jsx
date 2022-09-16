@@ -346,6 +346,8 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
               }
 
             }
+          } else {
+            throw new Error('Select a file to upload');
           }
         } catch(e){
           Swal.showValidationMessage(e.message);
