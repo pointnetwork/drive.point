@@ -7,7 +7,8 @@ import Breadcrumb from '../components/Breadcrumb';
 import ItemList from '../components/ItemList';
 import Share from '../components/Share';
 import Swal from 'sweetalert2';
- 
+import '@fontsource/source-sans-pro';
+
 export default function Home({publicKey, walletAddress, identityProp, pathProp}) {
   
   const [contextMenuState, setContextMenuState] = useState({open: false, x: 0, y: 0});
@@ -483,7 +484,8 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
         <div className="col-2" style={{borderRight: '1px solid gray', paddingRight: 20, minHeight: 400}}>
           <Sidebar setAddr={setAddr} walletAddress={walletAddress} setIdentity={setIdentity} identityProp={identityProp} setPath={setPath} />
         </div>
-        <div className="col-10" style={{paddingLeft: 20}}>
+
+        <div className="col-12">
           <Toolbar uploadHandler={openUploadDialog} newFolderHandler={openNewFolderDialog} />
           <br/>
           <Breadcrumb addrParam={addr} identity={identity} path={path} setPath={setPath} decyptedPath={decyptedPath} isPublic={folderMetadata.isPublic} />

@@ -1,0 +1,31 @@
+.itemsContainer h4 {
+  font-family: "Source Sans Pro", sans-serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.itemsList {
+  display: grid;
+  font-family: "Source Sans Pro", sans-serif;
+  grid-gap: 20px;
+  overflow: hidden;
+  padding: 10px 0 50px 0;
+}
+
+.itemsList.folders {
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.itemsList.files {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+@media (max-width: 767px) {
+  .itemsList.folders {
+    grid-template-columns: 1fr;
+  }
+
+  .itemsList.files {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
