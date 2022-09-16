@@ -1,0 +1,54 @@
+.navbar {
+  background: linear-gradient(to bottom, #1E2022 0%, rgb(0, 0, 0) 100%);
+  min-height: 60px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.imgLogo {
+  height: 2.25rem;
+  margin-right: 0.8em;
+}
+
+.navbar-nav form {
+  margin-left: 5px;
+  position: relative;
+}
+
+.navbar-nav form input {
+  background-color: rgba(255, 255, 255, .1);
+  border-color: transparent;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, .7);
+  font-family: "Source Sans Pro", sans-serif;
+  font-size: 1rem;
+  padding-left: 40px;
+}
+
+.navbar-nav form input:focus {
+  background-color: rgba(255, 255, 255, .2);
+  border-color: rgba(255, 255, 255, .3);
+  box-shadow: none;
+  color: rgba(255, 255, 255, .7);
+}
+
+.navbar-nav form svg {
+  color: rgba(255, 255, 255, .7);
+  height: 40px;
+  margin-left: 10px;
+  position: absolute;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+  background-color: rgba(255, 255, 255, .2);
+  border-radius: 4px;
+  color: #fff!important;
+  transition: .2s background-color ease-in-out, .2s color ease-in-out;
+}
+
+@media (max-width: 767px) {
+  .navbar-nav form {
+      margin: 10px 0;
+  }
+}

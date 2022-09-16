@@ -479,19 +479,23 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
 
   return (
     <>
-      <Container className="p-3" onClick={closeContextMenu}>
+      <div className="sub-navbar">
+        <Container onClick={closeContextMenu}>
+          <Breadcrumb addrParam={addr} identity={identity} path={path} setPath={setPath} decyptedPath={decyptedPath} isPublic={folderMetadata.isPublic} />
+          <Toolbar uploadHandler={openUploadDialog} newFolderHandler={openNewFolderDialog} />
+        </Container>
+      </div>
+
+      <Container className="p-3">
       <div className="row" style={{paddingBottom: 30}}>
-        <div className="col-2" style={{borderRight: '1px solid gray', paddingRight: 20, minHeight: 400}}>
+        {/* <div className="col-2" style={{borderRight: '1px solid gray', paddingRight: 20, minHeight: 400}}>
           <Sidebar setAddr={setAddr} walletAddress={walletAddress} setIdentity={setIdentity} identityProp={identityProp} setPath={setPath} />
-        </div>
+        </div> */}
 
         <div className="col-12">
-          <Toolbar uploadHandler={openUploadDialog} newFolderHandler={openNewFolderDialog} />
-          <br/>
-          <Breadcrumb addrParam={addr} identity={identity} path={path} setPath={setPath} decyptedPath={decyptedPath} isPublic={folderMetadata.isPublic} />
-          <ItemList items={items} itemSelected={itemSelected} 
+          <ItemList items={items} itemSelected={itemSelected}
               openContextMenu={openContextMenu} setDecryptedPath={setDecryptedPath}
-              setItemSelected={setItemSelected} setPath={setPath} />  
+              setItemSelected={setItemSelected} setPath={setPath} />
         </div>
       </div>
       <div className="dropdown" style={{position: 'fixed', 

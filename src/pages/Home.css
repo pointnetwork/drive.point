@@ -27,3 +27,57 @@
     cursor: "pointer";
     background-color: lightgray;
 }
+
+.sub-navbar {
+    background-color: #fff;
+    font-family: "Source Sans Pro", sans-serif;
+    font-size: 1rem;
+    padding: 15px 0;
+}
+
+.sub-navbar .container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.sub-navbar .btn {
+    margin-left: 10px;
+}
+
+.breadcrumb {
+    margin-bottom: 0!important;
+}
+
+.breadcrumb-item a {
+    float: left;
+}
+
+.breadcrumb-item a {
+    background-color: rgba(124, 124, 124, .05);
+    border-radius: 5px;
+    color: rgb(33, 37, 41);
+    padding: 8px 10px;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    background-color: rgba(124, 124, 124, .2);
+    color: rgb(33, 37, 41);
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    margin-top: 7px;
+}
+
+@media (max-width: 767px) {
+    .sub-navbar .container {
+        flex-direction: column;
+    }
+
+    .sub-navbar .btn {
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%;
+        justify-content: center;
+    }
+}
