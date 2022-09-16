@@ -5,6 +5,8 @@ export default function ItemList({items, openContextMenu, itemSelected, setItemS
     const folders = items.filter(item => item.isFolder);
     const files = items.filter(item => !item.isFolder);
 
+    if (folders.length === 0 && files.length === 0) return <i>No items found.</i>;
+
     return (
         <>
             {folders && folders.length > 0 && (
