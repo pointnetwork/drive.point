@@ -184,7 +184,11 @@ export default function Share({itemSelected, fetchItems, path, addr}){
                   }
                 }
               } catch(e){
-                Swal.showValidationMessage(e.message);
+                if(e.message == 'public point not validated'){
+                  Swal.showValidationMessage('Identity not found');  
+                }else{
+                  Swal.showValidationMessage(e.message);
+                }
                 return;
               }
             },
