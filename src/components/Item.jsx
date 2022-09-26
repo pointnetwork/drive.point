@@ -1,39 +1,11 @@
 
 import './Item.css';
 import { useState, useEffect } from 'react';
-import { ContactSupportOutlined } from '@material-ui/icons';
 
-function downloadBlob(blob, name) {
-    // Convert your blob into a Blob URL (a special url that points to an object in the browser's memory)
-    const blobUrl = URL.createObjectURL(blob);
-  
-    // Create a link element
-    const link = document.createElement("a");
-  
-    // Set link's href to point to the Blob URL
-    link.href = blobUrl;
-    link.download = name;
-  
-    // Append link to the body
-    document.body.appendChild(link);
-  
-    // Dispatch click event on the link
-    // This is necessary as link.click() does not work on the latest firefox
-    link.dispatchEvent(
-      new MouseEvent('click', { 
-        bubbles: true, 
-        cancelable: true, 
-        view: window 
-      })
-    );
-  
-    // Remove link from body
-    document.body.removeChild(link);
-  }
 
 export default function Item({id, name, type, path, 
     openContextMenu, selected, isPublic, eSymmetricObj, eSymmetricObjName, eSymmetricObjPath,
-    setItemSelected, setPath, setDecryptedPath}) {
+    setItemSelected, setPath, setDecryptedPath, isFolder, size}) {
 
     const [presentedName, setPresentedName] = useState('');
     const [presentedPath, setPresentedPath] = useState('');
@@ -62,13 +34,16 @@ export default function Item({id, name, type, path,
             setDecryptedPath(presentedPath);
         } else if (type === 'file'){
             if(!isPublic){
-                await downloadFileFromStorage({fileId: id, eSymmetricObj})
+                //await downloadFileFromStorage({fileId: id, eSymmetricObj})
+                window.open(`/_encryptedStorage/${id}?eSymmetricObj=${eSymmetricObj}`, target='_blank');
             }else{
                 if(eSymmetricObj !== ''){
                     //public but previously was private
-                    await downloadFileFromStorage({fileId: id, symmetricObj: eSymmetricObj})
+                    //await downloadFileFromStorage({fileId: id, symmetricObj: eSymmetricObj})
+                    window.open(`/_encryptedStorage/${id}?symmetricObj=${eSymmetricObj}`, target='_blank');
                 }else{
-                    await downloadFileFromStorage({fileId: id})
+                    //await downloadFileFromStorage({fileId: id})
+                    window.open(`/_storage/${id}`, target='_blank');
                 }
             }
         }
@@ -76,9 +51,11 @@ export default function Item({id, name, type, path,
 
     function openContextMenuHandler(e){
         e.preventDefault()
-        openContextMenu(parseInt(e.clientX), parseInt(e.clientY))
-        setItemSelected({id, name, type, path, isPublic, presentedName, presentedPath, 
-            eSymmetricObj, eSymmetricObjName, eSymmetricObjPath});
+        if(!isFolder){
+            openContextMenu(parseInt(e.clientX), parseInt(e.clientY))
+            setItemSelected({id, name, type, path, isPublic, presentedName, presentedPath, 
+                eSymmetricObj, eSymmetricObjName, eSymmetricObjPath, isFolder, size});
+        }
     }
 
 
@@ -121,6 +98,7 @@ export default function Item({id, name, type, path,
         
         <div className={ selected ?  "itemSelected" : "item"} 
             onDoubleClick={openItem} 
+            onContextMenu={openContextMenuHandler}
             >
             <div align="center">
             

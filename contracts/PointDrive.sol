@@ -21,6 +21,7 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         bool isFolder;
         bool isPublic;
         string eSymmetricObj;
+        bool isShared;
     }
     address private _identityContractAddr;
     string private _identityHandle;
@@ -108,7 +109,8 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
             size,
             false,
             isPublic,
-            eSymmetricObj
+            eSymmetricObj,
+            false
         );
 
         emit FileAdd(eId, eName, eFullPath, eParentPath, size, isPublic);
@@ -155,13 +157,14 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
             0,
             true,
             isPublic,
-            eSymmetricObj
+            eSymmetricObj,
+            false
         );
 
         emit FolderAdd(eName, eFullPath, eParentPath, isPublic);
     }
 
-    function listElements(address owner, string memory eFullPath) public view 
+    function listElements(address owner, string memory eFullPath, bool shared) public view 
                 onlyAuthorized(owner, eFullPath) returns (StorageElement[] memory) {
 
         string[] memory paths = _ownerPathToChildrensPathsMap[owner][eFullPath];
@@ -170,8 +173,17 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         uint256 aCount = 0;
         for (uint256 i = 0; i < paths.length; i++) {
             if (isAuthorized(owner, paths[i]) == true){
-                authorizedIndex[i] = true; 
-                aCount++;
+                if(shared == true){
+                    if(_ownerPathToElementMap[owner][paths[i]].isShared == true){
+                        authorizedIndex[i] = true; 
+                        aCount++;    
+                    }
+                }else{
+                    if (_ownerPathToElementMap[owner][paths[i]].isShared == false){
+                        authorizedIndex[i] = true; 
+                        aCount++;
+                    }
+                }
             }
         }
         
@@ -179,8 +191,18 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         uint256 j = 0;
         for (uint256 i = 0; i < paths.length; i++) {
             if(authorizedIndex[i] == true){
-                elements[j] = _ownerPathToElementMap[owner][paths[i]];
-                j++;
+                if(shared == true){
+                    if(_ownerPathToElementMap[owner][paths[i]].isShared == true){
+                        elements[j] = _ownerPathToElementMap[owner][paths[i]];
+                        j++;
+                    }
+                }else{
+                    if (_ownerPathToElementMap[owner][paths[i]].isShared == false){
+                        elements[j] = _ownerPathToElementMap[owner][paths[i]];
+                        j++;
+                    }
+                }
+                
             }
         }
         return elements;
@@ -199,6 +221,35 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         
         _ownerPathToElementMap[msg.sender][eFullPath].isPublic = true;
         _ownerPathToElementMap[msg.sender][eFullPath].eSymmetricObj = symmetricObj;
+    }
+
+
+    function shareFileWith(address sharedWith,
+                    string calldata eFullOriginalPath,
+                    string calldata eId, 
+                    string calldata eName, 
+                    string calldata eFullPath,
+                    uint256 size, 
+                    string memory eSymmetricObj) onlyAuthorized(msg.sender, eFullOriginalPath) public {
+        
+        //todo: more validations?
+
+        //link the file with the folder
+        _ownerPathToChildrensPathsMap[sharedWith][""].push(eFullPath);
+
+        //add the file to the storage
+        _ownerPathToElementMap[sharedWith][eFullPath] = StorageElement(
+            eId,
+            eName,
+            eFullPath,
+            sharedWith,
+            block.timestamp,
+            size,
+            false,
+            false,
+            eSymmetricObj,
+            true
+        );
     }
 
 }

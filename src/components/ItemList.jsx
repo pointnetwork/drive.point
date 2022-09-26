@@ -17,6 +17,8 @@ export default function ItemList({items, openContextMenu, itemSelected, setItemS
                             setItemSelected={setItemSelected}
                             setPath={setPath}
                             setDecryptedPath={setDecryptedPath}
+                            isFolder={item.isFolder}
+                            size={item.size}
                             />
             ) : <i>No items found.</i>}
         </div>

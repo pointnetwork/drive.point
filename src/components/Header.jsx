@@ -40,7 +40,7 @@ const Header = ({changePathHandler}) => {
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="me-auto">
                     <form className="d-flex" onSubmit={handleSubmit} >
-                        <input className="form-control me-2" type="search" placeholder="Identity/path" aria-label="Search" onChange={changeHandler} value={path} onKeyDown={enterHandler}/>
+                        <input className="form-control me-2" type="search" placeholder="User id or path" aria-label="Search" onChange={changeHandler} value={path} onKeyDown={enterHandler}/>
                         <button className="btn btn-outline-success" type="button" onClick={clickHandler}>Open</button>
                     </form>
                     </Nav>
