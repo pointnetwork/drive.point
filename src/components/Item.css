@@ -1,29 +1,107 @@
-
 .item {
-    padding: 5px;
-    margin: 5px;
-    width: 100px;
-    text-align: center;
-    float: left;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 7px 15px 0 rgba(0, 0, 0, .05);
     cursor: pointer;
+    display: flex;
+    padding: 25px;
+    position: relative;
+    top: 0;
+    transition: .2s top ease-in-out;
+    width: 100%;
 }
 
 .item:hover {
-    padding: 5px;
-    margin: 5px;
-    width: 100px;
-    text-align: center;
-    float: left;
-    cursor: pointer;
-    background-color: lightgray;
+    top: -2px;
 }
 
-.itemSelected {
-    padding: 5px;
-    margin: 5px;
-    width: 100px;
+.item::before {
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    background: transparent;
+    border-radius: 10px;
+    content: "";
+    inset: 0;
+    mask-composite: exclude;
+    padding: 2px;
+    position: absolute;
+}
+
+.item:hover::before,
+.itemSelected::before {
+    background: linear-gradient(90deg, #9245ff, #228dff, #5fecff);
+}
+
+.item .icon {
+    align-items: center;
+    color: rgba(124, 124, 124, .3);
+    display: flex;
+    justify-content: center;
+}
+
+.item .name {
+    font-family: "Source Sans Pro", sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 22px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.itemFolder .icon {
+    padding-right: 15px;
+}
+
+.itemFolder .icon svg {
+    font-size: 1.8rem;
+}
+
+.itemFolder .name {
+    font-weight: 600;
+}
+
+.itemFile {
+    aspect-ratio : 1 / 1;
+    flex-direction: column;
+    font-weight: 500;
+    justify-content: space-between;
+    padding: 0;
+}
+
+.itemFile .icon {
+    align-items: center;
+    display: flex;
+    height: calc(100% - 42px);
+    justify-content: center;
+    position: relative;
+}
+
+.itemFile .icon svg {
+    font-size: 2.2rem;
+}
+
+.itemFile .icon .publicIcon {
+    align-content: center;
+    background: white;
+    border-radius: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 1px;
+    position: absolute;
+    right: calc(50% - 25px);
+    top: 50%;
+}
+
+.itemFile .icon .publicIcon svg {
+    font-size: 1.25rem;
+}
+
+.itemFile .name {
+    background-color: rgba(124, 124, 124, .03);
+    height: 42px;
+    line-height: 42px;
+    padding: 0 10px;
     text-align: center;
-    float: left;
-    cursor: pointer;
-    background-color: lightgray;
+    width: 100%;
 }

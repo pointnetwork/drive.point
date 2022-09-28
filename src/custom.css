@@ -1,6 +1,38 @@
 /* add your own custom css here */
 
+body {
+    background-color: rgba(124, 124, 124, .07)!important;
+}
+
 .fileBox{
     border: 1px solid black;
     padding: 10px;
+}
+
+.btn {
+    display: flex!important;
+    font-weight: 600!important;
+}
+
+.btn svg {
+    margin-right: 10px;
+    font-size: 1.45rem;
+}
+
+.btn-primary {
+    background-color: #7066e0!important;
+    border-color: #7066e0!important;
+}
+
+.btn-outline-secondary {
+    border-color: rgba(124, 124, 124, .5)!important;
+    color: #3e474e!important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: rgba(124, 124, 124, .5)!important;
+}
+
+.btn-outline-secondary svg {
+    color: rgba(124, 124, 124, .5);
 }

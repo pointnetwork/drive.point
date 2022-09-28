@@ -7,7 +7,8 @@ import Breadcrumb from '../components/Breadcrumb';
 import ItemList from '../components/ItemList';
 import Share from '../components/Share';
 import Swal from 'sweetalert2';
- 
+import '@fontsource/source-sans-pro';
+
 export default function Home({publicKey, walletAddress, identityProp, pathProp}) {
   
   const [contextMenuState, setContextMenuState] = useState({open: false, x: 0, y: 0});
@@ -483,18 +484,23 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
 
   return (
     <>
-      <Container className="p-3" onClick={closeContextMenu}>
-      <div className="row" style={{paddingBottom: 30}}>
-        <div className="col-3" style={{borderRight: '1px solid gray', paddingRight: 20, minHeight: 400, width: 220}}>
-          <Sidebar setShared={setShared} setAddr={setAddr} walletAddress={walletAddress} setIdentity={setIdentity} identityProp={identityProp} setPath={setPath} />
-        </div>
-        <div className="col-9" style={{paddingLeft: 20}}>
-          <Toolbar shared={shared} uploadHandler={openUploadDialog} newFolderHandler={openNewFolderDialog} />
-          <br/>
+      <div className="sub-navbar">
+        <Container onClick={closeContextMenu}>
           <Breadcrumb addrParam={addr} identity={identity} path={path} setPath={setPath} decyptedPath={decyptedPath} isPublic={folderMetadata.isPublic} />
-          <ItemList items={items} itemSelected={itemSelected} 
+          <Toolbar uploadHandler={openUploadDialog} newFolderHandler={openNewFolderDialog} />
+        </Container>
+      </div>
+
+      <Container className="p-3">
+      <div className="row" style={{paddingBottom: 30}}>
+        {/* <div className="col-2" style={{borderRight: '1px solid gray', paddingRight: 20, minHeight: 400}}>
+          <Sidebar setAddr={setAddr} walletAddress={walletAddress} setIdentity={setIdentity} identityProp={identityProp} setPath={setPath} />
+        </div> */}
+
+        <div className="col-12">
+          <ItemList items={items} itemSelected={itemSelected}
               openContextMenu={openContextMenu} setDecryptedPath={setDecryptedPath}
-              setItemSelected={setItemSelected} setPath={setPath} />  
+              setItemSelected={setItemSelected} setPath={setPath} />
         </div>
       </div>
       <div className="dropdown" style={{position: 'fixed', 

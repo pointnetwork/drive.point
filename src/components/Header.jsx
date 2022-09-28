@@ -4,6 +4,9 @@ import Nav from 'react-bootstrap/Nav'
 import { Link } from "wouter";
 import { useAppContext} from '../context/AppContext';
 import { useState } from 'react';
+import logo from '../assets/pointlogowhite.png';
+import SearchIcon from '@material-ui/icons/Search';
+import "./Header.css";
 
 const Header = ({changePathHandler}) => {
     const { walletAddress, identity } = useAppContext();
@@ -33,16 +36,17 @@ const Header = ({changePathHandler}) => {
         <>
             <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
                 <Container>
+                <img src={logo} className="imgLogo" alt="Point Network" />
                 <Link to='/'>
                     <Navbar.Brand href="/">Point Drive</Navbar.Brand>
                 </Link>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse id="responsive-navbar-nav">
                     <Nav className="me-auto">
-                    <form className="d-flex" onSubmit={handleSubmit} >
-                        <input className="form-control me-2" type="search" placeholder="User id or path" aria-label="Search" onChange={changeHandler} value={path} onKeyDown={enterHandler}/>
-                        <button className="btn btn-outline-success" type="button" onClick={clickHandler}>Open</button>
-                    </form>
+                        <form className="d-flex" onSubmit={handleSubmit} >
+                            <SearchIcon />
+                            <input className="form-control" type="search" placeholder="Identity/path" aria-label="Search" onChange={changeHandler} value={path} onKeyDown={enterHandler}/>
+                        </form>
                     </Nav>
                     <Nav>
                     {/*
