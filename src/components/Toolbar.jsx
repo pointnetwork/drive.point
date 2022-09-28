@@ -1,7 +1,7 @@
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
 import NoteAddIcon from '@material-ui/icons/NoteAdd';
 
-const Toolbar = ({newFolderHandler, uploadHandler}) => {
+const Toolbar = ({newFolderHandler, uploadHandler, shared}) => {
 
     return (
         <div className="btn-toolbar justify-content-between" role="toolbar" aria-label="Toolbar with button groups">
@@ -35,4 +35,3 @@ const Toolbar = ({newFolderHandler, uploadHandler}) => {
 }
     
 export default Toolbar
-    

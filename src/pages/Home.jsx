@@ -19,6 +19,8 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
   const [addr, setAddr] = useState(walletAddress);
   const [identity, setIdentity] = useState(identityProp);
   const [folderMetadata, setFolderMetadata] = useState({});
+  const [shared, setShared] = useState(false);
+  
   console.log('pk = ' + publicKey);
   console.log('+++++++++++++++++');
   console.log(identityProp);
@@ -124,9 +126,9 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
   }, [walletAddress]);
 
   useEffect(() => {
-      fetchItems(addr, path);
+      fetchItems(addr, path, shared);
       fetchFolderMetadata(addr, path);
-  }, [path, addr])
+  }, [path, addr, shared])
 
   useEffect( async () => {
     try{
@@ -166,14 +168,14 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
     }
   }, [pathProp]);
 
-  const fetchItems = async (addrP, pathP) => {
+  const fetchItems = async (addrP, pathP, sharedP) => {
     
     if(addrP !== '' && addrP !== undefined){
-      console.log([addrP, pathP]);
+      console.log([addrP, pathP, sharedP]);
       const response = await window.point.contract.call({
         contract: 'PointDrive', 
         method: 'listElements', 
-        params: [addrP, pathP]});
+        params: [addrP, pathP, sharedP]});
       if(response.data){
         const mappedData = response.data.map( e => 
           { 
@@ -194,12 +196,13 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
               eFullPath: e[2],
               owner: e[3],
               createdAt: e[4],
-              sizeInBytes: e[5],
+              size: e[5],
               isFolder: e[6],
               isPublic: e[7],
               eSymmetricObj: eSymmObjFiels.file,
               eSymmetricObjName: eSymmObjFiels.name,
-              eSymmetricObjPath: eSymmObjFiels.path
+              eSymmetricObjPath: eSymmObjFiels.path,
+              isShared: e[9]
             }
           }
         )
@@ -344,6 +347,8 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
               }
 
             }
+          } else {
+            throw new Error('Select a file to upload');
           }
         } catch(e){
           Swal.showValidationMessage(e.message);
@@ -358,7 +363,7 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
         Swal.fire({
           title: `File Uploaded with Success!`,
         }).then(() => {
-          fetchItems(addr, path);
+          fetchItems(addr, path, false);
         })
       }
     })
@@ -469,7 +474,7 @@ export default function Home({publicKey, walletAddress, identityProp, pathProp})
           Swal.fire({
             title: `Folder Created with Success!`,
           }).then(() => {
-            fetchItems(addr, path);
+            fetchItems(addr, path, false);
           })
         }
       })
