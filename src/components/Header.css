@@ -1,13 +1,24 @@
 .navbar {
   background: linear-gradient(to bottom, #1E2022 0%, rgb(0, 0, 0) 100%);
+  font-family: "Source Sans Pro", sans-serif;
   min-height: 60px;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding: 10px 0;
 }
 
 .imgLogo {
   height: 2.25rem;
   margin-right: 0.8em;
+}
+
+.navbar-dark .navbar-brand {
+  font-size: 1.4rem;
+  line-height: 1.5rem;
+}
+
+.navbar-dark .navbar-toggler {
+  background: rgba(255, 255, 255, .2);
+  border: none;
+  padding: .3rem .4rem;
 }
 
 .navbar-nav form {
@@ -39,16 +50,25 @@
   position: absolute;
 }
 
+.nav-link {
+  border-radius: 4px;
+  font-size: 1.15rem;
+  line-height: 1.5rem;
+}
+
 .navbar-nav .nav-link:hover,
 .navbar-nav .nav-link.active {
   background-color: rgba(255, 255, 255, .2);
-  border-radius: 4px;
-  color: #fff!important;
+  /* color: #fff!important; */
   transition: .2s background-color ease-in-out, .2s color ease-in-out;
 }
 
 @media (max-width: 767px) {
   .navbar-nav form {
-      margin: 10px 0;
+    margin: 10px 0;
+  }
+
+  .nav-link {
+    text-align: center;
   }
 }
