@@ -1,10 +1,26 @@
 import Item from './Item';
 import './ItemsList.css';
 
-export default function ItemList({items, openContextMenu, itemSelected, setItemSelected, setPath, setDecryptedPath}) {
+/**
+ * Render the list of items
+ * 
+ * @param {object} props 
+ * @param {StorageElement[]} props.items - The items from the list (see Home.jsx - StorageElement)
+ * @param {function} props.openContextMenu - Callback function to open the context menu
+ * @param {string} props.itemSelected - id of the item selected
+ * @param {function} props.setItemSelected - Function to mark an item as selected
+ * @param {function} props.setPath - Function to set the selected path to fetch items 
+ * @param {function} props.setDecryptedPath - Function to set the selected path decrypted to fetch items
+ * 
+ * @returns {JSX.Element} - render of the list of items
+ */
+export default function ItemList({items, openContextMenu, itemSelected, 
+    setItemSelected, setPath, setDecryptedPath}) {
+    //the list of folders
     const folders = items.filter(item => item.isFolder);
+    //the list of files
     const files = items.filter(item => !item.isFolder);
-
+     
     if (folders.length === 0 && files.length === 0) return <i>No items found.</i>;
 
     return (

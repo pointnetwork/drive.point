@@ -5,17 +5,30 @@ import Home from './pages/Home'
 import { useAppContext} from './context/AppContext';
 import { useState } from 'react';
 
+/**
+ * Main function of the application, loads the application and other components.
+ * 
+ */
 const Main = () => {
 
+    //general data for the application, wallet connected, identity and public key
     const { walletAddress, identity, publicKey } = useAppContext();
+
+    //the path selected to fetch the files from the blockchain
     const [path, setPath] = useState('');
 
+    /**
+     * Change the path selected
+     * 
+     * @param {string} path - the path selected 
+     */
     function changePathHandler(path){
         console.log('chaged path in main');
         console.log(path);
         setPath(path);
     }
     
+    //render the application
     return (
         <main>
             <Header changePathHandler={changePathHandler} />

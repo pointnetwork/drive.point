@@ -1,7 +1,16 @@
 import CreateNewFolderIcon from '@material-ui/icons/CreateNewFolder';
 import NoteAddIcon from '@material-ui/icons/NoteAdd';
 
-const Toolbar = ({newFolderHandler, uploadHandler, shared}) => {
+/**
+ * Render the toolbar inside the home page.
+ * 
+ * @param {object} props
+ * @param {function} props.newFolderHandler - Function to be called when the new folder button is clicked
+ * @param {function} props.uploadHandler - Function to be called when the upload button is clicked
+ * 
+ * @returns 
+ */
+const Toolbar = ({newFolderHandler, uploadHandler}) => {
 
     return (
         <div className="btn-toolbar justify-content-between" role="toolbar" aria-label="Toolbar with button groups">
