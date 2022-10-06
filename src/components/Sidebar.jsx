@@ -1,6 +1,20 @@
 
-
+/**
+ * Sidebar to select which feature to use in drive
+ * 
+ * @param {object} props
+ * @param {function} props.setAddr - the function to change the owner address for searching files
+ * @param {function} props.setPath - the function to change the path for searching files
+ * @param {function} props.setIdentity - the function to change the identity for searching files
+ * @param {string} props.walletAddress - the wallet address connected
+ * @param {string} props.identityProp - the identity connected
+ * @param {function} props.setShared - the function to change between shared with me and root folder
+ * @returns 
+ */
 const Sidebar = ({setAddr, setPath, setIdentity, walletAddress, identityProp, setShared}) => {
+    /**
+     * Switch to my files option
+     */
     function myFiles(){
       setPath('');
       setAddr(walletAddress);
@@ -8,6 +22,9 @@ const Sidebar = ({setAddr, setPath, setIdentity, walletAddress, identityProp, se
       setShared(false);
     }
 
+    /**
+     * Switch to shared with me option
+     */
     function sharedWithMe(){
       setPath('');
       setAddr(walletAddress);
@@ -15,6 +32,7 @@ const Sidebar = ({setAddr, setPath, setIdentity, walletAddress, identityProp, se
       setShared(true);
     }
 
+    //render the sidebar
     return (
           <div className="btn-group-vertical" >
             <button type="button" className="btn btn-outline-secondary text-start" onClick={myFiles}>

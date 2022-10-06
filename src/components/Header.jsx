@@ -8,30 +8,44 @@ import logo from '../assets/pointlogowhite.png';
 import SearchIcon from '@material-ui/icons/Search';
 import "./Header.css";
 
+/**
+ * Render the header of the application
+ * 
+ * @param {object} props
+ * @param {function} props.changePathHandler - handler to be called when the path is changed
+ * 
+ */
 const Header = ({changePathHandler}) => {
+    //get wallet and identity
     const { walletAddress, identity } = useAppContext();
 
+    //local path
     const [path, setPath] = useState('');
 
+    //change the path locally
     function changeHandler(e){
         console.log(e);
         setPath(e.target.value);
     }
 
+    //change path button handler
     function clickHandler(e){
         changePathHandler(path);
     }
 
+    //enter handlers in the path field
     function enterHandler(e){
         if (e.key === 'Enter') {
             clickHandler(e);
         }
     }
 
+    //handle the submit of the form
     function handleSubmit(e){
         e.preventDefault();
     }
 
+    //render the header
     return (
         <>
             <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">

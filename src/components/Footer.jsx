@@ -3,6 +3,9 @@ import Navbar from 'react-bootstrap/Navbar'
 import { Link } from "wouter";
 import logo from '../assets/pointlogowhite.png'
 
+/**
+ * Render the footer of the application
+ */
 const Footer = () => {
     return (
         <>
