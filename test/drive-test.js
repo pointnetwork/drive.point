@@ -187,7 +187,7 @@ describe("PointDrive", function () {
         ''
       );
 
-      let elements = await driveContract.listElements(owner.address, parent);
+      let elements = await driveContract.listElements(owner.address, parent, false);
       expect(elements.length).to.equal(2);
       expect(elements[0].eName).to.equal(name1);
       expect(elements[1].eName).to.equal(name2);
@@ -225,7 +225,7 @@ describe("PointDrive", function () {
         ''
       );
 
-      let elements = await driveContract.listElements(owner.address, parent);
+      let elements = await driveContract.listElements(owner.address, parent, false);
       expect(elements.length).to.equal(2);
       expect(elements[0].eName).to.equal(name1);
       expect(elements[1].eName).to.equal(name2);
@@ -279,12 +279,15 @@ describe("PointDrive", function () {
         ''
       )
 
-      let elements = await driveContract.listElements(addr1.address, parent);
+      let elements = await driveContract.listElements(addr1.address, parent, false);
       expect(elements.length).to.equal(2);
       expect(elements[0].eName).to.equal(name1);
       expect(elements[0].eFullPath).to.equal(fullPath1);
       expect(elements[1].eName).to.equal("diogo");
       expect(elements[1].eFullPath).to.equal("home/diogo");
+
+      elements = await driveContract.listElements(addr1.address, parent, true);
+      expect(elements.length).to.equal(0);
     });
 
   });
