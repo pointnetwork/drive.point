@@ -294,15 +294,14 @@ describe("PointDrive", function () {
 
   describe("Testing data sharing functions", function () {
 
+    const id1 = "hashId1";
+    const name1 = "test1.txt";
+    const fullPath1 = "home/test1.txt";
+    const parent = "home";
+    const size = 200;
+    const symmetricObject = "symmetricObject";
+
     it("Share to public", async function () {
-      const id1 = "hashId1";
-      const name1 = "test1.txt";
-      const fullPath1 = "home/test1.txt";
-      const parent = "home";
-      const size = 200;
-      const symmetricObject = "symmetricObject";
-
-
       await driveContract.connect(addr1).newFolder(
           "home",
           "home",
@@ -317,7 +316,7 @@ describe("PointDrive", function () {
           fullPath1,
           parent,
           size,
-          true,
+          false,
           ''
       );
 
@@ -325,7 +324,14 @@ describe("PointDrive", function () {
           addr1.address,
           fullPath1
       );
+      // should be not public because create as private
       expect(fileMetadata.isPublic).false;
+
+      //Access to a private element from thirdparty account should be denied
+      await expect(driveContract.connect(addr2).getElementMetadata(
+          addr1.address,
+          fullPath1
+      )).to.be.revertedWith("Access denied");
 
       await driveContract.connect(addr1).shareToPublic(
           fullPath1,
@@ -336,7 +342,69 @@ describe("PointDrive", function () {
           addr1.address,
           fullPath1
       );
-      expect(fileMetadata.isPublic).true;
+
+      // Should be public because access shared with public
+      expect(fileMetadata.isPublic);
+    });
+
+    it("Share with address", async function () {
+      await driveContract.connect(addr1).newFolder(
+          parent,
+          parent,
+          "",
+          true,
+          ''
+      )
+
+      await driveContract.connect(addr1).newFile(
+          id1,
+          name1,
+          fullPath1,
+          parent,
+          size,
+          false,
+          ''
+      );
+
+      let fileMetadata = await driveContract.connect(addr1).getElementMetadata(
+          addr1.address,
+          fullPath1
+      );
+
+      // should be not public because create as private
+      expect(fileMetadata.isPublic).false;
+
+      //Access to a private element from thirdparty account should be denied
+      await expect(driveContract.connect(addr2).getElementMetadata(
+          addr2.address,
+          fullPath1
+      )).to.be.revertedWith("Access denied");
+
+      await driveContract.connect(addr1).shareFileWith(
+          addr2.address,
+          fullPath1,
+          id1,
+          name1,
+          fullPath1,
+          size,
+          symmetricObject
+      );
+
+      fileMetadata = await driveContract.connect(addr1).getElementMetadata(
+          addr1.address,
+          fullPath1
+      );
+
+      // Should be not public because access shared with specific address
+      expect(fileMetadata.isPublic).false;
+
+      fileMetadata = await driveContract.connect(addr2).getElementMetadata(
+          addr2.address,
+          fullPath1
+      );
+      
+      //It should be shared file from other account
+      expect(fileMetadata.isShared);
     });
   });
 });
