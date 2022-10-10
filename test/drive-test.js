@@ -405,6 +405,14 @@ describe("PointDrive", function () {
       
       //It should be shared file from other account
       expect(fileMetadata.isShared);
+
+      //Should find this element shared
+      elements = await driveContract.connect(addr2).listElements(addr2.address, "", true);
+      expect(elements.length).to.equal(1);
+      
+      //Should not show any not shared elements
+      elements = await driveContract.connect(addr2).listElements(addr2.address, "", false);
+      expect(elements.length).to.equal(0);
     });
   });
 });
