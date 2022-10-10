@@ -67,20 +67,20 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
     }
 
     /// Modifier to check if an address is authorized to access certain path
-    /// @param owner - the address to be checked
+    /// @param candidate - the address to be checked
     /// @param eFullPath - the path to be checked
-    modifier onlyAuthorized(address owner, string memory eFullPath) {
-        require (isAuthorized(owner, eFullPath), "Access denied");
+    modifier onlyAuthorized(address candidate, string memory eFullPath) {
+        require (isAuthorized(candidate, eFullPath), "Access denied");
         _;
     }
 
     /// Checks if an address is authorized to access certain path
-    /// @param owner - the address to be checked
+    /// @param candidate - the address to be checked
     /// @param eFullPath - the path to be checked
-    function isAuthorized(address owner, string memory eFullPath) public view returns(bool){
+    function isAuthorized(address candidate, string memory eFullPath) public view returns(bool){
         return  bytes(eFullPath).length == 0 || 
-                _ownerPathToElementMap[owner][eFullPath].isPublic == true || 
-                _ownerPathToElementMap[owner][eFullPath].owner == msg.sender;
+                _ownerPathToElementMap[candidate][eFullPath].isPublic == true ||
+                _ownerPathToElementMap[candidate][eFullPath].owner == msg.sender;
     }
 
     /// Creates a new file
@@ -266,7 +266,7 @@ contract PointDrive is Initializable, UUPSUpgradeable, OwnableUpgradeable{
     /// @param symmetricObj - the decrypted symmetric object of the file
     function shareToPublic(string memory eFullPath, string memory symmetricObj) public{
         require(bytes(_ownerPathToElementMap[msg.sender][eFullPath].eFullPath).length != 0, "Element cannot be empty or root folder");
-        require(!_ownerPathToElementMap[msg.sender][eFullPath].isFolder, "Cannot change visibility to public of a folder");
+        require(!_ownerPathToElementMap[msg.sender][eFullPath].isFolder, "Cannot change visibility of a folder to public");
         require(bytes(symmetricObj).length != 0, "SymmetricObj cannot be empty");
         
         _ownerPathToElementMap[msg.sender][eFullPath].isPublic = true;
